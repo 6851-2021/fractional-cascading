@@ -1,4 +1,5 @@
 #include "Catalog.h"
+#include "AugmentedCatalog.h"
 
 #include <set>
 
@@ -10,12 +11,11 @@ class Node {
     private:
         Catalog catalog;
         T label;
+        AugmentedCatalog acatalog  = NULL;
     public:
-        Node(T label, int[] catalog) {
-
+        Node(T label, Catalog catalog) {
+            this->catalog = catalog;
+            this->label = label;
         }
 
-        Set<Node> getNeighbors() {
-
-        }
 };

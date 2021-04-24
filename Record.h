@@ -1,6 +1,6 @@
+#include <stddef.h>
 using namespace std;
 
-template <typename T>
 
 /**
  * @brief A record, as specified in the paper, stored in
@@ -8,19 +8,19 @@ template <typename T>
  */
 class Record {
     /**
-     * AF(key, c_successor) = the record from a catalog with key 'key'
+     * AF(key, up_pointer) = the record from a catalog with key 'key'
      *      and 'c_successor' is a pointer to the successor of the record
      *      in its own catalog
      * 
      */
     private:
         int key;
-        Record<T>* c_successor;
+        Record* up_pointer = NULL;
     public:
-        Record(int key, Record<T>* c_successor) {
+        Record(int key) {
             this->key = key;
-            this->c_successor = c_successor;
         }
+
 
         /**
          * @brief Get the Key object
@@ -31,11 +31,12 @@ class Record {
             return this->key;
         }
 
-        /**
-         * @brief Get the pointer to the successor
-         * @return Record<T>* the record (if NIL, it is the last record of its catalog)
-         */
-        Record<T>* getCSuccessor() {
-            return this->c_successor;
+
+        Record* getUpPointer() {
+            return this->up_pointer;
+        }
+
+        void setUpPointer(Record* up_pointer) {
+            this->up_pointer = up_pointer;
         }
 };

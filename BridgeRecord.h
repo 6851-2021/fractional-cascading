@@ -15,14 +15,14 @@ class BridgeRecord : public AugmentedRecord {
      *      TODO: idk what this is lol
      */
     private:
-        BridgeRecord<T>* prev_bridge;
-        BridgeRecord<T>* companion_bridge;
-        Edge edge;
+        BridgeRecord* prev_bridge;
+        BridgeRecord* companion_bridge;
+        Edge<T> edge;
         int count;
         int rank;
     public:
-        BridgeRecord(int key, Record<T>* c_succesor, AugmentedRecord<T>* a_successor, AugmentedRecord<T>* a_predecessor, bool flag,
-            BridgeRecord<T>* prev_bridge, BridgeRecord<T>* companion_bridge, Edge edge, int count, int rank) :
+        BridgeRecord(int key, Record* c_succesor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag,
+            BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T> edge, int count, int rank) :
                 AugmentedRecord(key, c_successor, a_successor, a_predecessor, flag) {
                     this->prev_bridge = prev_bridge;
                     this->companion_bridge = companion_bridge;
@@ -35,7 +35,7 @@ class BridgeRecord : public AugmentedRecord {
          * @brief Get the Prev Bridge object
          * @return BridgeRecord<T>* the lesser value bridge or NIL if lowest endpoint of range
          */
-        BridgeRecord<T>* getPrevBridge() {
+        BridgeRecord* getPrevBridge() {
             return this->prev_bridge;
         }
 
@@ -43,7 +43,7 @@ class BridgeRecord : public AugmentedRecord {
          * @brief Get the Companion Bridge object
          * @return BridgeRecord<T>* the companion bridge
          */
-        BridgeRecord<T>* getCompanionBridge() {
+        BridgeRecord* getCompanionBridge() {
             return this->companion_bridge;
         }
 

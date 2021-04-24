@@ -1,10 +1,9 @@
 #include "AugmentedRecord.h"
-
+#include <stddef.h>
+#include <optional>
 #include <list>
-
+#include <set>
 using namespace std;
-
-template <typename T>
 
 /**
  * @brief Augmented catalogs as described in paper (refered to as A_v).
@@ -16,29 +15,61 @@ class AugmentedCatalog {
      *          specified in listOfRecords
      */
     private:
-        set<AugmentedRecord<T>> setOfRecords;
-        list<AugmentedRecord<T>> listOfRecords;
+        list<AugmentedRecord> listOfRecords;
     public:
-        Catalog(set<AugmentedRecord<T>> records) {
-            this->setOfRecords = records;
-        };
 
-        Catalog(list<AugmentedRecord<T>> records) {
-            this->listOfRecords = records;
-        }
-
+        //TODO: Change this to an optional object
         /**
          * @brief Searches for a record in the catalog by key
          * @param key 
          * @return Record<T> the record if found, and nullptr if not
          */
-        AugmentedRecord<T> search(int key) {
-            for (AugmentedRecord<T> record : this->listOfRecords) {
+       AugmentedRecord search(int key) {
+            for (AugmentedRecord record : this->listOfRecords) {
                 // CHANGE THIS TO SETOFRECORDS IF WE USE THAT REP
                 if (record.getKey() == key) {
                     return record;
                 }
             }
-            return nullptr;
+            return;
         };
+
+        
+        /**
+         * @brief Inserts a record into A_v
+         * @param p Record
+         * @param d max degree of catalog graph
+         * @return AugmentedRecord* pointer to the AugmentedReccord created
+         */
+        AugmentedRecord* insert(Record p, int d) {
+            list<AugmentedRecord>::iterator it = listOfRecords.begin();
+            while (it != listOfRecords.end()) {
+                if (it->getKey() > p.getKey()) {
+                    break;
+                }
+            }
+            AugmentedRecord newRecord(p.getKey(),&p,0);
+            newRecord.setUpPointer(&(*it));
+            newRecord.setDownPointer(it->getDownPointer());
+            AugmentedRecord* toReasign = it->getDownPointer();
+            toReasign->setUpPointer(&newRecord);
+            it->setDownPointer(&newRecord);
+            return &newRecord;    
+        }
+
+
+        // AugmentedCatalog(list<AugmentedRecord> records) {
+        //     records.sort();
+        //     AugmentedRecord prev_record = records.front();
+        //     records.pop_front();
+        //     AugmentedRecord curr_record = records.front();
+        //     while (records.size() != 0) {
+        //         prev_record.setUpPointer(&curr_record);
+        //         curr_record.setDownPointer(&prev_record);
+        //         listOfRecords.push_back(prev_record);
+        //         prev_record = curr_record;
+        //         curr_record = records.front();
+        //         records.pop_front();
+        //     }
+        // }
 };
