@@ -88,9 +88,14 @@ class CatalogGraph {
                 }
             }
         }
-
+        /**
+         * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
+         * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
+         * the first value greater than or equal to x
+         */
         list<int> multipleLookUpQuery(int x, list<T> path) {
-            
+            list<int> x_succesors;
+            return x_succesors;
         }
 
 };
