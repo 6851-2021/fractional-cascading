@@ -89,4 +89,8 @@ class CatalogGraph {
             }
         }
 
+        list<int> multipleLookUpQuery(int x, list<T> path) {
+            
+        }
+
 };
