@@ -21,7 +21,7 @@ class BridgeRecord : public AugmentedRecord {
         int count;
         int rank;
     public:
-        BridgeRecord(int key, Record* c_succesor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag,
+        BridgeRecord(int key, Record* c_succesor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag
             BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T> edge, int count, int rank) :
                 AugmentedRecord(key, c_successor, a_successor, a_predecessor, flag) {
                     this->prev_bridge = prev_bridge;
@@ -29,6 +29,7 @@ class BridgeRecord : public AugmentedRecord {
                     this->edge = edge;
                     this->count = count;
                     this->rank = rank;
+                    this->isBridge = true;
                 }
 
         /**
@@ -66,6 +67,9 @@ class BridgeRecord : public AugmentedRecord {
             return this->count;
         }
 
+        void setCount(int new_count) {
+            this->count = new_count;
+        }
         /**
          * @brief Get the Gap size
          * @return int 

@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "__tree": "cpp",
+        "bitset": "cpp",
+        "set": "cpp",
+        "queue": "cpp",
+        "deque": "cpp",
+        "functional": "cpp",
+        "list": "cpp",
+        "map": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp"
+    }
+}
