@@ -93,9 +93,62 @@ class CatalogGraph {
          * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
          * the first value greater than or equal to x
          */
-        list<int> multipleLookUpQuery(int x, list<T> path) {
-            list<int> x_succesors;
-            return x_succesors;
+        list<int> multipleLookUpQuery(int x, list<Node> path_nodes, list<Edge> path_edges) {
+            list<int> sigma_x;
+            list<int> positions;
+            set<Node> nodes_known;
+            set<Edge> edges_checked;
+
+            auto f = path_nodes[0]; //or path_edges[0][0] depending on implementation
+            auto r = f.acatalog.search(x); //This and below assumes acatalog is a reg. list
+            sigma_x.add(f.acatalog.at(r));
+            positions.add(r);
+
+            for (Edge edge in path_edges) {
+                if (edge not in edges_checked) {
+                    if(edge[0] in nodes_known) {
+                        Node v = edge[0];
+                        Node w = edge[1];
+                        AugmentedCatalog A_v = v.acatalog;
+                        //Go thru catalog for bridge
+                        //Check if edge for bridge is (v,w)
+                        //bridgefound(A_w,i,x)
+                    }
+                    else if(edge[1] in nodes_known) {
+                        Node v = edge[1];
+                        Node w = edge[0];
+                        AugmentedCatalog A_v = v.acatalog;
+                        //Go thru catalog for bridge
+                        //Check if edge for bridge is (v,w)
+                        //bridgefound(A_w,i,x)
+                    } 
+                }
+            }
+
+            //Notes for me: For each node u and edge e conn. u w/ v, a list of bridges from u to v
+            // is defined as an ordered subset of the records in A_v having values common to A_u andA_v and lying in Range R_e
+            // endpoints of R_e are the first and last records in D_uv
+            return sigma_x;
         }
+
+        int bridgeFound(BridgeRecord A_w, int i, int x) {
+            x_found = false; 
+            //curr = A_w at i
+            prev = 0;
+            while (x_found == false){
+                //Find x thru pointers
+                x_found = true;
+            }
+        return prev; //curr
+        }
+
+        //Given a list of ints arr, return int at i
+        T get<T>(list<T> arr, int i) {
+            auto list_pointer = arr.begin();
+            std::advance(arr,i);
+            return *list_pointer;
+        }
+
+    
 
 };
