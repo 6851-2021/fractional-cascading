@@ -11,7 +11,7 @@ class Node {
     private:
         Catalog catalog;
         T label;
-        AugmentedCatalog acatalog  = NULL;
+        AugmentedCatalog acatalog  = new AugmentedCatalog();
     public:
         Node(T label, Catalog catalog) {
             this->catalog = catalog;

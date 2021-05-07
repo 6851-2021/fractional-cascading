@@ -41,12 +41,12 @@ class AugmentedCatalog {
          * @param d max degree of catalog graph
          * @return AugmentedRecord* pointer to the AugmentedReccord created
          */
-        AugmentedRecord* insert(Record p, int d) {
-            list<AugmentedRecord>::iterator it = listOfRecords.begin();
+        AugmentedRecord* insert(Record p, list<AugmentedRecord>::iterator it) {
             while (it != listOfRecords.end()) {
                 if (it->getKey() > p.getKey()) {
                     break;
                 }
+                it++;
             }
             AugmentedRecord newRecord(p.getKey(),&p,0);
             newRecord.setUpPointer(&(*it));

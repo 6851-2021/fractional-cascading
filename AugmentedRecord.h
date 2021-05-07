@@ -21,6 +21,7 @@ class AugmentedRecord {
         AugmentedRecord* up_pointer = NULL;
         AugmentedRecord* down_pointer = NULL;
         bool flag;
+        bool isBridge = false;
     public:
         AugmentedRecord(int key, Record* c_pointer, bool flag) {
                 this->key = key;
@@ -84,4 +85,9 @@ class AugmentedRecord {
         void setFlag(bool new_flag) {
             this->flag = new_flag;
         }
+
+        bool getBridge() {
+            return this->isBridge;
+        }
+
 };

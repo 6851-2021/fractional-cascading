@@ -5,6 +5,7 @@
 #include <set>
 #include <list>
 #include <map>
+#include <queue>
 
 using namespace std;
 
@@ -24,8 +25,7 @@ class CatalogGraph {
         map<int,Edge<T>> edges_;
         set<Edge<T>> allEdges;
         int d; //leave as a paramter
-        map <T,list<BridgeRecord<T>> D_uv;
-        map <T,list<BridgeRecord<T>> D_vu;
+        map<T, map <T,list<BridgeRecord<T>>> D_uv;
     public:
         CatalogGraph(map<T, list<Record>> nodes, map<int,list<T>>edges, map<int,int[2]>edge_ranges, int d) {
             map<T, list<Record>>::iterator it = nodes.begin();
@@ -61,29 +61,67 @@ class CatalogGraph {
         }
 
 
-        updateCountFields(set<AugmentedRecord*> count_queue) {
+        void updateCountFields(queue<AugmentedRecord*> count_queue) {
             for (AugmentedRecord* record:count_queue) {
-                AugmentedRecord* curr_record = record;
+                
                 for (int i=0; i<6*d;i++) {
                     curr_record->setFlag(1);
-                    curr_record = curr_record->getUpPointer(); 
+                    curr_record = curr_record->getDownPointer(); 
                     if (curr_record == NULL) {
                         break;
                     }
                 }
             }
+            processClusters(count_queue);
+        }
+
+        void processClusters(queue<AugmentedRecord*> count_queue) {
+            queue<BridgeRecord*> wide_gap_queue;
+            while(count_queue.size()) {
+                AugmentedRecord* curr_record = count_queue.front();
+                count_queue.pop();
+                if(curr_record->getFlag()) {
+                    // find bottom record in cluster
+                    AugmentedRecord* p = curr_record;
+                    while(p->getDownPointer() && p->getDownPointer()->getFlag()) {
+                        p = curr_record->getDownPointer();
+                    }
+                    // ranking process
+                    // how do we keep track of bridges? access bridges?
+                    int rank = 1;
+                    int pastOnes = 0;
+                    while(p->getUpPointer() && (p->getUpPointer()->getFlag() || pastOnes < 6 * d)) {
+                        if(p->getBridge()) {
+                            p->setRank(rank);
+                            int newRecords = p->getRank()-p->getPrevBridge()->getRank();
+                            p->setCount(p->getCount() + newRecords);
+                            int k = p->getCompanionBridge()->getCount();
+                            if(p->getCount() + k >= 6 * d && p->getCount() + k - newRecords < 6 * d) {
+                                // need a wide gap queue
+                            }
+                            p->getPrevBridge()->setRank(0);
+                        }
+                        rank++;
+                        p->setFlag(0);
+                        if(!p->getFlag()) pastOnes++; 
+                    }
+                    // p->setRank(0);
+                }
+            }
+            // restore gap invariants
 
         }
 
-        void constructAugmentedCaltalogs() {
-            set<AugmentedRecord*> count_queue;
+        void constructAugmentedCatalogs() {
+            queue<AugmentedRecord*> count_queue;
             map<T,Node<T>>::iterator it = nodes_.begin();
             while (it != nodes_.end()) {
                 T label = it->first;
                 Node<T> node = it->second;
+                list<AugmentedRecord*>::iterator lit = node.acatalog.listOfRecords.begin();
                 for (Record record:node.catalog.listOfRecords) {
                     //Stage 1: Insert a copy of p (called r in the paper) into A_v and a pointer to r into count_queue
-                    count_queue.insert(node.acatalog.insert(record,d));
+                    count_queue.push(node.acatalog.insert(record, lit));
                     updateCountFields(count_queue);
                 }
             }

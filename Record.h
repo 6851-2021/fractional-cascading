@@ -16,9 +16,11 @@ class Record {
     private:
         int key;
         Record* up_pointer = NULL;
+        bool endOfRange;
     public:
-        Record(int key) {
+        Record(int key, bool endOfRange) {
             this->key = key;
+            this->endOfRange = endOfRange;
         }
 
 
@@ -31,6 +33,9 @@ class Record {
             return this->key;
         }
 
+        bool getEndOfRange() {
+            return this->endOfRange;
+        }
 
         Record* getUpPointer() {
             return this->up_pointer;
