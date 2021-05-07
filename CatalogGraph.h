@@ -25,8 +25,7 @@ class CatalogGraph {
         map<int,Edge<T>> edges_;
         set<Edge<T>> allEdges;
         int d; //leave as a paramter
-        map <T,list<BridgeRecord<T>> D_uv;
-        map <T,list<BridgeRecord<T>> D_vu;
+        map<T, map <T,list<BridgeRecord<T>>> D_uv;
     public:
         CatalogGraph(map<T, list<Record>> nodes, map<int,list<T>>edges, map<int,int[2]>edge_ranges, int d) {
             map<T, list<Record>>::iterator it = nodes.begin();
@@ -104,7 +103,7 @@ class CatalogGraph {
                         }
                         rank++;
                         p->setFlag(0);
-                        if(!p->getFlag()) pastOnes++;
+                        if(!p->getFlag()) pastOnes++; 
                     }
                     // p->setRank(0);
                 }
@@ -119,7 +118,7 @@ class CatalogGraph {
             while (it != nodes_.end()) {
                 T label = it->first;
                 Node<T> node = it->second;
-                list<AugmentedRecord>::iterator lit = node.acatalog.listOfRecords.begin();
+                list<AugmentedRecord*>::iterator lit = node.acatalog.listOfRecords.begin();
                 for (Record record:node.catalog.listOfRecords) {
                     //Stage 1: Insert a copy of p (called r in the paper) into A_v and a pointer to r into count_queue
                     count_queue.push(node.acatalog.insert(record, lit));
