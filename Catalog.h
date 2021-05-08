@@ -22,48 +22,41 @@ class Catalog {
     private:
         list<Record> listOfRecords;
     public:
-        /** Initializes a catalog with records from record sorted by key.
-         */
-        Catalog(list<Record> records) {
-            records.sort();
-            Record default_neginfinity(neg_inf);
-            Record curr_record = records.front();
-            records.pop_front();
-            Record prev_record = default_neginfinity;
-            listOfRecords.push_back(prev_record);
-            while (records.size() != 0) {
-                prev_record.setUpPointer(&curr_record);
-                listOfRecords.push_back(curr_record);
-                prev_record = curr_record;
-                curr_record = records.front();
-                records.pop_front();
-            }
-            Record default_infinity(inf);
-            curr_record.setUpPointer(&default_infinity);
-        }
 
         /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
          */
         Catalog() {
-            Record default_neginfinity(neg_inf);
-            Record default_infinity(inf);
+            Record default_neginfinity(neg_inf,false);
+            Record default_infinity(inf,false);
             default_neginfinity.setUpPointer(&default_infinity);
             listOfRecords.push_back(default_neginfinity);
             listOfRecords.push_back(default_infinity);
         }
 
-        /**
-         * @brief Searches for a record in the catalog by key
-         * @param key 
-         * @return Record<T> the record if found, and nullptr if not
-         */
-        Record search(int key) {
-            for (Record record : this->listOfRecords) {
-                // CHANGE THIS TO SETOFRECORDS IF WE USE THAT REP
-                if (record.getKey() == key) {
-                    return record;
-                }
-            }
-            return NULL;
-        };
+        list<Record>::iterator insert(Record new_record, list<Record>::iterator it) {
+            //Insert at a position in the list
+            Record prev_record = *it;
+            prev_record.setUpPointer(&new_record);
+            it++;
+            listOfRecords.insert(it,new_record);
+            return it;
+        }
+
+        list<Record>::iterator  getIterator() {
+            return listOfRecords.begin();
+        }
+        // /**
+        //  * @brief Searches for a record in the catalog by key
+        //  * @param key 
+        //  * @return Record<T> the record if found, and nullptr if not
+        //  */
+        // Record* search(int key) {
+        //     for (Record record : this->listOfRecords) {
+        //         // CHANGE THIS TO SETOFRECORDS IF WE USE THAT REP
+        //         if (record.getKey() == key) {
+        //             return &record;
+        //         }
+        //     }
+        //     return nullptr;
+        // };
 };

@@ -2,16 +2,17 @@
 
 #include <set>
 #include <list>
+#include <utility>
 
 using namespace std;
 
 template <typename T>
 class Edge {
     private:
-        list<T> endpoints;
-        int range [2];
+        pair<T,T> endpoints;
+        pair<int,int> range;
     public:
-        Edge(list<T> ends, int[2] range) {
+        Edge(pair<T,T> ends, pair<int,int> range) {
             this->endpoints = ends;
             this->range = range;
         }

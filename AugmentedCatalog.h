@@ -17,22 +17,21 @@ class AugmentedCatalog {
     private:
         list<AugmentedRecord> listOfRecords;
     public:
-
-        //TODO: Change this to an optional object
-        /**
-         * @brief Searches for a record in the catalog by key
-         * @param key 
-         * @return Record<T> the record if found, and nullptr if not
-         */
-       AugmentedRecord search(int key) {
-            for (AugmentedRecord record : this->listOfRecords) {
-                // CHANGE THIS TO SETOFRECORDS IF WE USE THAT REP
-                if (record.getKey() == key) {
-                    return record;
-                }
-            }
-            return;
-        };
+    //     //TODO: Change this to an optional object
+    //     /**
+    //      * @brief Searches for a record in the catalog by key
+    //      * @param key 
+    //      * @return Record<T> the record if found, and nullptr if not
+    //      */
+    //    AugmentedRecord search(int key) {
+    //         for (AugmentedRecord record : this->listOfRecords) {
+    //             // CHANGE THIS TO SETOFRECORDS IF WE USE THAT REP
+    //             if (record.getKey() == key) {
+    //                 return record;
+    //             }
+    //         }
+    //         return;
+    //     };
 
         
         /**

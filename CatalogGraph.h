@@ -2,6 +2,7 @@
 #include "Node.h"
 #include "BridgeRecord.h"
 
+#include <utility>
 #include <set>
 #include <list>
 #include <map>
@@ -20,43 +21,82 @@ class CatalogGraph {
      *                        
      */
     private:
-        map<T,Node<T>> nodes_;
-        set<Node<T>> allNodes;
-        map<int,Edge<T>> edges_;
-        set<Edge<T>> allEdges;
-        int d; //leave as a paramter
-        map<T, map <T,list<BridgeRecord<T>>> D_uv;
+        map<T,Node<T>*> nodes_;
+        set<Node<T>* > allNodes;
+        map<int,Edge<T>* > edges_;
+        set<Edge<T>* > allEdges;
+        int d; 
+        map<T, map <T,list<BridgeRecord<T> > > D_uv;
     public:
-        CatalogGraph(map<T, list<Record>> nodes, map<int,list<T>>edges, map<int,int[2]>edge_ranges, int d) {
-            map<T, list<Record>>::iterator it = nodes.begin();
-            while (it != nodes.end()) {
-                T label = it->first;
-                list<Record> records = it->second;
-                Node<T> nodeObject(label, Catalog(records));
-                nodes_.insert(pair<T,Node<T>> (label, nodeObject));
-                allNodes.insert(nodeObject);
-                it++;
-            }
-            map<int, list<T>>::iterator it = edges.begin();
-            while (it != edges.end()) {
-                // Accessing KEY from element pointed by it.
-                T edge_key= it->first;
-                // Accessing VALUE from element pointed by it.
-                list<T> endpoints = it->second;
-                //Insert into  map and set.
-                Edge<T> edgeObject(endpoints,edge_ranges.at(edge_key))
-                edges_.insert(pair<int, Edge<T>> (edge_key, edgeObject));
+        CatalogGraph(map<T, list<int> > nodes, map<int,pair<T,T> >edges, map<int,pair<int,int> > edge_ranges, int d) {
+            //Step 1: Set d field
+            this-> d = d;
+            
+            //Step 2: Process all edges for fields
+            map<T, set<int> > ranges;
+            //Process edges
+            for (auto const& edge_and_endpoints : edges) {
+                int edge_label = edge_and_endpoints.first;
+                pair<T,T> endpoints = edge_and_endpoints.second;
+                pair<int,int> edge_range = edge_ranges[edge_label];
+
+                //extract the endpoints for ranges  dictionary
+                T endpoint1 = endpoints.first;
+                T endpoint2 = endpoints.second;
+
+                //place in endpoints dictionary
+                ranges[endpoint1].insert(edge_range.first);
+                ranges[endpoint1].insert(edge_range.second);
+                ranges[endpoint2].insert(edge_range.first);
+                ranges[endpoint2].insert(edge_range.second);
+
+                //Place them in the appropriate fields
+                Edge<T>* edgeObject = new Edge(endpoints,edge_ranges);
+                edges_[edge_label] = edgeObject;
                 allEdges.insert(edgeObject);
-                // Increment the Iterator to point to next entry
-                it++;
+
+            }
+
+            //Step 3: Process all nodes for fields
+            for (auto const& key_and_value: nodes){
+                //Get label and list of values
+                T  label = key_and_value.first;
+                list<int> values = key_and_value.second;
+
+                //Create nodes and place in appropriate fields
+                Node<T>* nodeObject = new Node(label);
+                nodes_[label] = nodeObject;
+                allNodes.insert(nodeObject);
+                
+                //Fill up node's catalog
+                Catalog nodeCat = nodeObject->getCatalog();
+                set<int> rangeEnds = ranges[label];
+                values.sort();
+                list<Record>::iterator insertion_iterator =  nodeCat.getIterator();
+                list<int>::iterator it = values.begin();
+                while (it! = values.end()){
+                    int value = *it;
+                    Record* record_to_insert;
+                    if (rangeEnds.find(key) != rangeEnds.end()) {
+                        record_to_insert = new Record(value,true);
+
+                    } else {
+                        record_to_insert = new Record(value,false);
+                    }
+                    insertion_iterator = nodeCat.insert(record_to_insert,insertion_iterator);
+                    it++;
+                }
+
+                
             }
         };
+        
 
-        set<Node> getNodes() {
+        set<Node<T>*> getNodes() {
             return allNodes;
         }
 
-        set<Edge> getEdges() {
+        set<Edge<T>*> getEdges() {
             return allEdges;
         }
 
@@ -124,8 +164,10 @@ class CatalogGraph {
                     count_queue.push(node.acatalog.insert(record, lit));
                     updateCountFields(count_queue);
                 }
+                node.createLookupTable();
             }
         }
+        
         /**
          * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
          * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
