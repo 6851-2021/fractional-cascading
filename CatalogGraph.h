@@ -21,7 +21,7 @@ class CatalogGraph {
      *                        
      */
     private:
-        map<T,Node<T>*> nodes_;
+        map<T,Node<T>* > nodes_;
         set<Node<T>* > allNodes;
         map<int,Edge<T>* > edges_;
         set<Edge<T>* > allEdges;
@@ -34,6 +34,7 @@ class CatalogGraph {
             
             //Step 2: Process all edges for fields
             map<T, set<int> > ranges;
+            map<T, map<int,pair<int,int> > edges_of_interest;
             //Process edges
             for (auto const& edge_and_endpoints : edges) {
                 int edge_label = edge_and_endpoints.first;
@@ -49,6 +50,11 @@ class CatalogGraph {
                 ranges[endpoint1].insert(edge_range.second);
                 ranges[endpoint2].insert(edge_range.first);
                 ranges[endpoint2].insert(edge_range.second);
+
+                //place in edges_of_interest_dictionary. This maps every node to the edges incident on it. 
+                //stroign with it the relevant endpoints
+                edges_of_interest[endpoint1][edge_label] = make_pair(edge_range.first,edge_range.second);
+                edges_of_interest[endpoint2][edge_label] = make_pair(edge_range.first,edge_range.second);
 
                 //Place them in the appropriate fields
                 Edge<T>* edgeObject = new Edge(endpoints,edge_ranges);
@@ -78,10 +84,29 @@ class CatalogGraph {
                     int value = *it;
                     Record* record_to_insert;
                     if (rangeEnds.find(key) != rangeEnds.end()) {
-                        record_to_insert = new Record(value,true);
+                        //Figure out the edge whose endpoint contains `value`
+                        for (auto const& edge_and_endpoints : edges_of_interest[label]) {
+                                int edge_key =  edge_and_endpoints.first;
+                                pair<int,int> rangepoints = edge_and_endpoints.second;
 
+                                int  endpoint1 = rangepoints.first;
+                                int  endpoint2 = rangepoints.second;
+
+                                //We reach this case once and after that, never again for any particular node
+                                if  (endpoint1 == value && endpoint1 != endpoint2) {
+                                    record_to_insert = new Record(value,true,edge_key);
+                                    edges_of_interest[label][edge_key] = make_pair(endpoint2,endpoint2); 
+                                    break;
+                                //Reach this case the next time round and then delete the edge.
+                                } else if (endpoint2 == value) {
+                                    record_to_insert = new Record(value,true,edge_key);
+                                    edges_of_interest[label].erase(edge_key);
+                                    break;
+                                }
+                        }
+                        
                     } else {
-                        record_to_insert = new Record(value,false);
+                        record_to_insert = new Record(value,false,nullptr);
                     }
                     insertion_iterator = nodeCat.insert(record_to_insert,insertion_iterator);
                     it++;
