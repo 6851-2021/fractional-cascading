@@ -5,6 +5,8 @@
 #include <set>
 using namespace std;
 
+template <typename T>
+
 /**
  * @brief Augmented catalogs as described in paper (refered to as A_v).
  *        Stores the augmented records of the data structure
@@ -40,14 +42,18 @@ class AugmentedCatalog {
          * @param d max degree of catalog graph
          * @return AugmentedRecord* pointer to the AugmentedReccord created
          */
-        AugmentedRecord* insert(Record p, list<AugmentedRecord>::iterator it) {
+        AugmentedRecord* insert(Record p, list<AugmentedRecord>::iterator it, bool bridge) {
             while (it != listOfRecords.end()) {
                 if (it->getKey() > p.getKey()) {
                     break;
                 }
                 it++;
             }
-            AugmentedRecord newRecord(p.getKey(),&p,0);
+            if(bridge) {
+                BridgeRecord<T> newRecord(p.getKey(), &p, 0);
+            } else {
+                AugmentedRecord newRecord(p.getKey(),&p,0);
+            }
             newRecord.setUpPointer(&(*it));
             newRecord.setDownPointer(it->getDownPointer());
             AugmentedRecord* toReasign = it->getDownPointer();
