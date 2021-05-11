@@ -15,17 +15,21 @@ class BridgeRecord : public AugmentedRecord {
      *      TODO: idk what this is lol
      */
     private:
-        BridgeRecord* prev_bridge;
-        BridgeRecord* companion_bridge;
+        BridgeRecord* prev_bridge = NULL;
+        BridgeRecord* companion_bridge = NULL;
         Edge<T> edge;
-        int count;
-        int rank;
+        int count = 0;
+        int rank = 0;
     public:
         BridgeRecord(int key, Record* c_succesor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag
             BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T> edge, int count, int rank) :
                 AugmentedRecord(key, c_successor, a_successor, a_predecessor, flag) {
                     this->prev_bridge = prev_bridge;
-                    this->companion_bridge = companion_bridge;
+                    if(companion_bridge){
+                        this->companion_bridge = companion_bridge;
+                    } else {
+                        companion_bridge =
+                    }
                     this->edge = edge;
                     this->count = count;
                     this->rank = rank;

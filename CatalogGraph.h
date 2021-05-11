@@ -152,9 +152,9 @@ class CatalogGraph {
                         p = curr_record->getDownPointer();
                     }
                     // ranking process
-                    // how do we keep track of bridges? access bridges?
                     int rank = 1;
                     int pastOnes = 0;
+                    BridgeRecord* lastBridge;
                     while(p->getUpPointer() && (p->getUpPointer()->getFlag() || pastOnes < 6 * d)) {
                         if(p->getBridge()) {
                             p->setRank(rank);
@@ -162,19 +162,35 @@ class CatalogGraph {
                             p->setCount(p->getCount() + newRecords);
                             int k = p->getCompanionBridge()->getCount();
                             if(p->getCount() + k >= 6 * d && p->getCount() + k - newRecords < 6 * d) {
-                                // need a wide gap queue
+                                wide_gap_queue.push(p);
                             }
                             p->getPrevBridge()->setRank(0);
+                            lastBridge = p;
                         }
                         rank++;
                         p->setFlag(0);
                         if(!p->getFlag()) pastOnes++; 
+                        p = p->getUpPointer();
                     }
-                    // p->setRank(0);
+                    lastBridge->setRank(0);
                 }
             }
-            // restore gap invariants
+            restoreGapInvariants(queue<BridgeRecord*> wide_gap_queue);
+        }
 
+        void restoreGapInvariants(queue<BridgeRecord*> wide_gap_queue) {
+            // gap to restore is betweeen b and b->getPrevBridge()
+            while (wide_gap_queue.size()) {
+                BridgeRecord* b = wide_gap_queue.front();
+                BridgeRecord* b_comp = b->getCompanionBridge();
+                wide_gap_queue.pop();
+                list<AugmentedRecord*> mergedGap;
+                AugmentedRecord* b_gap = b->getPrevBridge()->getUpPointer();
+                AugmentedRecord* b_comp_gap = b_comp->getPrevBridge()->getUpPointer();
+                //merge gaps into mergedGap
+                //split into groups of size 3d
+                //construct new bridges and add to count queue
+            }
         }
 
         void constructAugmentedCatalogs() {
@@ -186,7 +202,11 @@ class CatalogGraph {
                 list<AugmentedRecord*>::iterator lit = node.acatalog.listOfRecords.begin();
                 for (Record record:node.catalog.listOfRecords) {
                     //Stage 1: Insert a copy of p (called r in the paper) into A_v and a pointer to r into count_queue
-                    count_queue.push(node.acatalog.insert(record, lit));
+                    if(record.getEndOfRange()){
+                        count_queue.push(node.acatalog.insert(record, lit, true));
+                    } else {
+                        count_queue.push(node.acatalog.insert(record, lit, false));
+                    }
                     updateCountFields(count_queue);
                 }
                 node.createLookupTable();
