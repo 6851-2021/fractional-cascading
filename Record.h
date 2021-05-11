@@ -22,7 +22,7 @@ class Record {
         Record(int key, bool endOfRange,int edge_label) {
             this->key = key;
             this->endOfRange = endOfRange;
-            this->edge = edge_label;
+            this->edge = -1;
         }
 
 
