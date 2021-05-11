@@ -17,10 +17,12 @@ class Record {
         int key;
         Record* up_pointer = NULL;
         bool endOfRange;
+        int edge;
     public:
-        Record(int key, bool endOfRange) {
+        Record(int key, bool endOfRange,int edge_label) {
             this->key = key;
             this->endOfRange = endOfRange;
+            this->edge = edge_label;
         }
 
 
