@@ -26,7 +26,8 @@ class CatalogGraph {
         map<int,Edge<T>* > edges_;
         set<Edge<T>* > allEdges;
         int d; 
-        map<T, map <T,list<BridgeRecord<T> > > D_uv;
+        map<T, map <T, BridgeRecord<T>* > > D_uv_bottom;
+        map<T, map <T, BridgeRecord<T>* > > D_uv_top;
     public:
         CatalogGraph(map<T, list<int> > nodes, map<int,pair<T,T> >edges, map<int,pair<int,int> > edge_ranges, int d) {
             //Step 1: Set d field
@@ -78,7 +79,7 @@ class CatalogGraph {
                 Catalog nodeCat = nodeObject->getCatalog();
                 set<int> rangeEnds = ranges[label];
                 values.sort();
-                list<Record>::iterator insertion_iterator =  nodeCat.getIterator();
+                Record* prevRecord =  nodeCat.getBottomRecord();
                 list<int>::iterator it = values.begin();
                 while (it! = values.end()){
                     int value = *it;
@@ -108,7 +109,10 @@ class CatalogGraph {
                     } else {
                         record_to_insert = new Record(value,false,nullptr);
                     }
-                    insertion_iterator = nodeCat.insert(record_to_insert,insertion_iterator);
+                    if(prevRecord) {
+                        prevRecord->setUpPointer(&record_to_insert);
+                    }
+                    prevRecord = &record_to_insert;
                     it++;
                 }
 
@@ -184,9 +188,9 @@ class CatalogGraph {
             while (wide_gap_queue.size()) {
                 BridgeRecord* b = wide_gap_queue.front();
                 BridgeRecord* b_comp = b->getCompanionBridge();
+                Edge e = b.getEdge();
                 wide_gap_queue.pop();
                 // merge gaps
-                list<AugmentedRecord*> mergedGap;
                 AugmentedRecord* b_gap = b->getPrevBridge()->getUpPointer();
                 AugmentedRecord* b_comp_gap = b_comp->getPrevBridge()->getUpPointer();
                 int recordNum = 0;
@@ -195,22 +199,18 @@ class CatalogGraph {
                     if(b_gap != b) {
                         if(b_comp_gap != b_comp) {
                             if(b_gap->getKey() <= b_comp_gap->getKey()) {
-                                mergedGap.push_back(b_gap);
                                 lastRecord = b_gap;
                                 b_gap = b_gap->getUpPointer();
                             } else {
-                                mergedGap.push_back(b_comp_gap);
                                 lastRecord = b_comp_gap;
                                 b_comp_gap = b_comp_gap->getUpPointer();
                             }
                         } else {
-                            mergedGap.push_back(b_gap);
                             lastRecord = b_gap;
                             b_gap = b_gap->getUpPointer();
                         }
                     } else {
                         if(b_comp_gap != b_comp) {
-                            mergedGap.push_back(b_comp_gap);
                             lastRecord = b_comp_gap;
                             b_comp_gap = b_comp_gap->getUpPointer();
                         }
@@ -218,18 +218,27 @@ class CatalogGraph {
                     recordNum++;
                     //construct new bridges and add to count queue
                     if(recordNum%(3*d) == 0){
-                        AugmentedRecord b_copy(lastRecord->getKey(), lastRecord->getCPointer(),
-                            lastRecord->getFlag());
-                        AugmentedRecord b_comp_copy(lastRecord->getKey(), lastRecord->getCPointer(),
-                            lastRecord->getFlag());
+                        BridgeRecord b_copy(lastRecord->getKey(), lastRecord->getCPointer(),
+                            lastRecord->getFlag(), e);
+                        BridgeRecord b_comp_copy(lastRecord->getKey(), lastRecord->getCPointer(),
+                            lastRecord->getFlag()), e;
                         b_copy->setUpPointer(b_gap);
                         b_comp_copy->setUpPointer(b_comp_gap);
                         b_copy->setDownPointer(b_gap->getDownPointer());
                         b_comp_copy->setDownPointer(b_comp_gap->getDownPointer());
+
                         b_gap->getDownPointer()->setUpPointer(b_copy);
                         b_comp_gap->getDownPointer()->setUpPointer(b_comp_copy);
                         b_gap->setDownPointer(b_copy);
                         b_comp_gap->setDownPointer(b_comp_copy);
+
+                        b_copy->setPrevBridge(b->getPrevBridge());
+                        b_copy->setCompanionBridge(b_comp_copy);
+                        b->setPrevBridge(b_copy);
+                        b_comp_copy->setPrevBridge(b_comp->getPrevBridge());
+                        b_comp->setPrevBridge(b_comp_copy);
+                        b_comp_copy->setCompanionBridge(b_copy);
+
                         count_queue.push(b_copy);
                         count_queue.push(b_comp_copy);
                     }
@@ -244,16 +253,58 @@ class CatalogGraph {
             while (it != nodes_.end()) {
                 T label = it->first;
                 Node<T> node = it->second;
-                list<AugmentedRecord*>::iterator lit = node.acatalog.listOfRecords.begin();
-                for (Record record:node.catalog.listOfRecords) {
+                AugmentedRecord* prev = NULL;
+                Record* record = node.catalog.getBottomRecord();
+                while(record->getUpPointer()) {
                     //Stage 1: Insert a copy of p (called r in the paper) into A_v and a pointer to r into count_queue
+                    AugmentedRecord augRecord;
                     if(record.getEndOfRange()){
-                        count_queue.push(node.acatalog.insert(record, lit, true));
+                        // companion bridges? also which endpoint?
+                        augRecord = BridgeRecord<T>(record->getKey(), record, 0, record->getEdge());
+                        if(record->getEdge().getRange().first == record->getKey()) {
+                            if(record->getEdge().getEndpoints().first == label) {
+                                if(D_uv_bottom[record->getEdge().getEndpoints().second][label]){
+                                    augRecord.setCompanionBridge(D_uv_bottom[record->getEdge().getEndpoints().second][label]);
+                                    D_uv_bottom[record->getEdge().getEndpoints().second][label]->setCompanionBridge(&augRecord);
+                                }
+                                D_uv_bottom[label][record->getEdge().getEndpoints().second] = &augRecord;
+                            } else {
+                                if(D_uv_bottom[record->getEdge().getEndpoints().first][label]){
+                                    augRecord.setCompanionBridge(D_uv_bottom[record->getEdge().getEndpoints().first][label]);
+                                    D_uv_bottom[record->getEdge().getEndpoints().first][label]->setCompanionBridge(&augRecord);
+                                }
+                                D_uv_bottom[label][record->getEdge().getEndpoints().first] = &augRecord;
+                            }
+                        } else {
+                            if(record->getEdge().getEndpoints().first == label) {
+                                augRecord.setPrevBridge(D_uv_bottom[label][record->getEdge().getEndpoints().second]);
+                                if(D_uv_top[record->getEdge().getEndpoints().second][label]){
+                                    augRecord.setCompanionBridge(D_uv_top[record->getEdge().getEndpoints().second][label]);
+                                    D_uv_top[record->getEdge().getEndpoints().second][label]->setCompanionBridge(&augRecord);
+                                }
+                                D_uv_top[label][record->getEdge().getEndpoints().second] = &augRecord;
+                            } else {
+                                augRecord.setPrevBridge(D_uv_bottom[label][record->getEdge().getEndpoints().first]);
+                                if(D_uv_top[record->getEdge().getEndpoints().first][label]){
+                                    augRecord.setCompanionBridge(D_uv_top[record->getEdge().getEndpoints().first][label]);
+                                    D_uv_top[record->getEdge().getEndpoints().first][label]->setCompanionBridge(&augRecord);
+                                }
+                                D_uv_top[label][record->getEdge().getEndpoints().first] = &augRecord;
+                            }
+                        }
+                        count_queue.push(augRecord);
                     } else {
-                        count_queue.push(node.acatalog.insert(record, lit, false));
+                        augRecord = AugmentedRecord(record.getKey(), &record, 0);
+                        count_queue.push(augRecord);
                     }
-                    updateCountFields(count_queue);
+                    if(prev) {
+                        augRecord.setDownPointer(prev);
+                        prev->setUpPointer(&augRecord);
+                    } 
+                    prev = &augRecord;
+                    record = record->getUpPointer();
                 }
+                updateCountFields(count_queue);
                 node.createLookupTable();
             }
         }

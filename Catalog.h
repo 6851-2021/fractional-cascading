@@ -20,30 +20,23 @@ class Catalog {
      *                      in sorted order
      */
     private:
-        list<Record> listOfRecords;
+        Record* bottomRecord = NULL;
     public:
 
         /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
          */
         Catalog() {
-            Record default_neginfinity(neg_inf,false);
-            Record default_infinity(inf,false);
+            Record default_neginfinity(neg_inf,false, NULL);
+            Record default_infinity(inf,false, NULL);
             default_neginfinity.setUpPointer(&default_infinity);
-            listOfRecords.push_back(default_neginfinity);
-            listOfRecords.push_back(default_infinity);
         }
 
-        list<Record>::iterator insert(Record new_record, list<Record>::iterator it) {
-            //Insert at a position in the list
-            Record prev_record = *it;
-            prev_record.setUpPointer(&new_record);
-            it++;
-            listOfRecords.insert(it,new_record);
-            return it;
+        void setBottomRecord(Record* bottomRecord) {
+            this->bottomRecord = bottomRecord;
         }
 
-        list<Record>::iterator  getIterator() {
-            return listOfRecords.begin();
+        Record* getBottomRecord() {
+            return this->bottomRecord;
         }
         // /**
         //  * @brief Searches for a record in the catalog by key

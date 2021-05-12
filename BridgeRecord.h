@@ -25,11 +25,7 @@ class BridgeRecord : public AugmentedRecord {
             BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T> edge, int count, int rank) :
                 AugmentedRecord(key, c_successor, a_successor, a_predecessor, flag) {
                     this->prev_bridge = prev_bridge;
-                    if(companion_bridge){
-                        this->companion_bridge = companion_bridge;
-                    } else {
-                        companion_bridge =
-                    }
+                    this->companion_bridge = companion_bridge;
                     this->edge = edge;
                     this->count = count;
                     this->rank = rank;
@@ -50,6 +46,14 @@ class BridgeRecord : public AugmentedRecord {
          */
         BridgeRecord* getCompanionBridge() {
             return this->companion_bridge;
+        }
+
+        void setPrevBridge(BridgeRecord* prev_bridge) {
+            this->prev_bridge = prev_bridge;
+        }
+
+        void setCompanionBridge(BridgeRecord* companion_bridge) {
+            this->companion_bridge = companion_bridge;
         }
 
         /**

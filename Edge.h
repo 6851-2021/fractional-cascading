@@ -17,5 +17,13 @@ class Edge {
             this->range = range;
         }
 
+        pair<T, T> getEndpoints(){
+            return this->endpoints;
+        }
+
+        pair<int, int> getRange() {
+            return this->range;
+        }
+
         
 };

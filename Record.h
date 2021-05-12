@@ -35,6 +35,10 @@ class Record {
             return this->key;
         }
 
+        int getEdge() {
+            return this->edge;
+        }
+
         bool getEndOfRange() {
             return this->endOfRange;
         }

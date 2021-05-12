@@ -17,7 +17,7 @@ class AugmentedCatalog {
      *          specified in listOfRecords
      */
     private:
-        list<AugmentedRecord> listOfRecords;
+        AugmentedRecord* bottom_record = NULL;
     public:
     //     //TODO: Change this to an optional object
     //     /**
@@ -35,33 +35,13 @@ class AugmentedCatalog {
     //         return;
     //     };
 
-        
-        /**
-         * @brief Inserts a record into A_v
-         * @param p Record
-         * @param d max degree of catalog graph
-         * @return AugmentedRecord* pointer to the AugmentedReccord created
-         */
-        AugmentedRecord* insert(Record p, list<AugmentedRecord>::iterator it, bool bridge) {
-            while (it != listOfRecords.end()) {
-                if (it->getKey() > p.getKey()) {
-                    break;
-                }
-                it++;
-            }
-            if(bridge) {
-                BridgeRecord<T> newRecord(p.getKey(), &p, 0);
-            } else {
-                AugmentedRecord newRecord(p.getKey(),&p,0);
-            }
-            newRecord.setUpPointer(&(*it));
-            newRecord.setDownPointer(it->getDownPointer());
-            AugmentedRecord* toReasign = it->getDownPointer();
-            toReasign->setUpPointer(&newRecord);
-            it->setDownPointer(&newRecord);
-            return &newRecord;    
+        void setBottomRecord(AugmentedRecord* bottomRecord) {
+            this->bottom_record = bottomRecord;
         }
-
+        
+        AugmentedRecord* getBottomRecord() {
+            return this->bottom_record;
+        }
 
         // AugmentedCatalog(list<AugmentedRecord> records) {
         //     records.sort();
