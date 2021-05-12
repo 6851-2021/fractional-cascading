@@ -109,10 +109,9 @@ class CatalogGraph {
                     } else {
                         record_to_insert = new Record(value,false,nullptr);
                     }
-                    if(prevRecord) {
-                        prevRecord->setUpPointer(&record_to_insert);
-                    }
-                    prevRecord = &record_to_insert;
+                    record_to_insert->setUpPointer(prevRecord->getUpPointer());
+                    prevRecord->setUpPointer(&record_to_insert);
+                    prevRecord = record_to_insert;
                     it++;
                 }
 
@@ -255,7 +254,7 @@ class CatalogGraph {
                 Node<T> node = it->second;
                 AugmentedRecord* prev = NULL;
                 Record* record = node.catalog.getBottomRecord();
-                while(record->getUpPointer()) {
+                while(record) {
                     //Stage 1: Insert a copy of p (called r in the paper) into A_v and a pointer to r into count_queue
                     AugmentedRecord augRecord;
                     if(record.getEndOfRange()){

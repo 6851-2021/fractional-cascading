@@ -20,7 +20,7 @@ class Catalog {
      *                      in sorted order
      */
     private:
-        Record* bottomRecord = NULL;
+        Record* bottomRecord;
     public:
 
         /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
@@ -29,10 +29,7 @@ class Catalog {
             Record default_neginfinity(neg_inf,false, NULL);
             Record default_infinity(inf,false, NULL);
             default_neginfinity.setUpPointer(&default_infinity);
-        }
-
-        void setBottomRecord(Record* bottomRecord) {
-            this->bottomRecord = bottomRecord;
+            bottomRecord = &default_neginfinity;
         }
 
         Record* getBottomRecord() {
