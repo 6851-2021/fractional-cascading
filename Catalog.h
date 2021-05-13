@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int inf = numeric_limits<int>::infinity();
+int inf = numeric_limits<int>::max();
 int neg_inf = -1*inf;
 
 
@@ -20,16 +20,16 @@ class Catalog {
      *                      in sorted order
      */
     private:
-        Record* bottomRecord;
+        Record* bottomRecord = NULL;
     public:
 
         /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
          */
         Catalog() {
-            Record default_neginfinity(neg_inf,false);
-            Record default_infinity(inf,false);
-            default_neginfinity.setUpPointer(&default_infinity);
-            bottomRecord = &default_neginfinity;
+            Record* default_neginfinity = new Record(neg_inf,false);
+            Record* default_infinity = new Record(inf,false);
+            default_neginfinity->setUpPointer(default_infinity);
+            bottomRecord = default_neginfinity;
         }
 
         Record* getBottomRecord() {

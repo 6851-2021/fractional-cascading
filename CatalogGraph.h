@@ -2,6 +2,7 @@
 #include "Node.h"
 #include "BridgeRecord.h"
 
+#include <iostream>
 #include <utility>
 #include <set>
 #include <list>
@@ -61,7 +62,6 @@ class CatalogGraph {
                 Edge<T>* edgeObject = new Edge<T>(endpoints,edge_range);
                 edges_[edge_label] = edgeObject;
                 allEdges.insert(edgeObject);
-
             }
 
             //Step 3: Process all nodes for fields
@@ -159,15 +159,22 @@ class CatalogGraph {
                     BridgeRecord<T>* lastBridge;
                     while(p->getUpPointer() && (p->getUpPointer()->getFlag() || pastOnes < 6 * d)) {
                         if(p->getBridge()) {
-                            BridgeRecord<T>* b = static_cast<BridgeRecord<T>*>(p);
+                            BridgeRecord<T>* b = dynamic_cast<BridgeRecord<T>*>(p);
+                            b->getRank();
                             b->setRank(rank);
-                            int newRecords = b->getRank()-b->getPrevBridge()->getRank();
-                            b->setCount(b->getCount() + newRecords);
-                            int k = b->getCompanionBridge()->getCount();
-                            if(b->getCount() + k >= 6 * d && b->getCount() + k - newRecords < 6 * d) {
-                                wide_gap_queue.push_back(b);
+                            int newRecords = b->getRank();
+                            if(b->getPrevBridge()){
+                                newRecords -= b->getPrevBridge()->getRank();
+                                b->getPrevBridge()->setRank(0);
+                                b->setCount(b->getCount() + newRecords);
+                                int k = 0;
+                                if(b->getCompanionBridge()){
+                                    k = b->getCompanionBridge()->getCount();
+                                    if(b->getCount() + k >= 6 * d && b->getCount() + k - newRecords < 6 * d) {
+                                        wide_gap_queue.push_back(b);
+                                    }
+                                }
                             }
-                            b->getPrevBridge()->setRank(0);
                             lastBridge = b;
                         }
                         rank++;
@@ -178,7 +185,9 @@ class CatalogGraph {
                     lastBridge->setRank(0);
                 }
             }
-            restoreGapInvariants(wide_gap_queue);
+            if(wide_gap_queue.size()){
+                restoreGapInvariants(wide_gap_queue);
+            }
         }
 
         void restoreGapInvariants(deque<BridgeRecord<T>*> wide_gap_queue) {
@@ -295,7 +304,9 @@ class CatalogGraph {
                         if(prev) {
                             augRecord->setDownPointer(prev);
                             prev->setUpPointer(augRecord);
-                        } 
+                        } else {
+                            node->getAugCatalog()->setBottomRecord(augRecord);
+                        }
                         prev = augRecord;
                         record = record->getUpPointer();
                     } else {
@@ -304,13 +315,16 @@ class CatalogGraph {
                         if(prev) {
                             augRecord->setDownPointer(prev);
                             prev->setUpPointer(augRecord);
-                        } 
+                        } else {
+                            node->getAugCatalog()->setBottomRecord(augRecord);
+                        }
                         prev = augRecord;
                         record = record->getUpPointer();
                     }
                 }
                 updateCountFields(count_queue);
                 node->createLookupTable();
+                it++;
             }
         }
         

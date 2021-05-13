@@ -47,6 +47,8 @@ class AugmentedRecord {
             this->flag = flag;
             }
 
+        virtual ~AugmentedRecord() {}
+
         int getKey() {
             return this->key;
         }

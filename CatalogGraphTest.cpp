@@ -1,3 +1,4 @@
+#include <iostream>
 #include "CatalogGraph.h"
 
 int main () {
@@ -29,4 +30,13 @@ int main () {
     int d = 2;
     CatalogGraph<int> catGraph(nodes, edges, edge_ranges, d);
     catGraph.constructAugmentedCatalogs();
+    for(Node<int>* n: catGraph.getNodes()){
+        cout << n->getLabel() << endl;
+        AugmentedRecord* a = n->getAugCatalog()->getBottomRecord();
+        while(a) {
+            cout << a->getKey() << " ";
+            a = a->getUpPointer();
+        }
+        cout << endl;
+    }
 }
