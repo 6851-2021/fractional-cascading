@@ -313,36 +313,25 @@ class CatalogGraph {
          * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
          * the first value greater than or equal to x
          */
-        list<int> multipleLookUpQuery(int x, list<Node> path_nodes, list<Edge> path_edges) {
+        list<int> multipleLookUpQuery(int x, list<Edge<T>> path_edges) {
             list<int> sigma_x;
             list<int> positions;
-            set<Node> nodes_known;
-            set<Edge> edges_checked;
+            Edge<T> first_edge = path_edges[0];
+            Node<T> f = first_edge.endpoints.first;
+            AugmentedRecord r = f.acatalog.search(x); //Get Augmented Record thru Lookup
+            //sigma_x.add(r.getKey());
+            auto ac_pointer = r.getCPointer();
+            sigma_x.push_back(ac_pointer*); //Carryover lookup into the catalog
 
-            auto f = path_nodes[0]; //or path_edges[0][0] depending on implementation
-            auto r = f.acatalog.search(x); //This and below assumes acatalog is a reg. list
-            sigma_x.add(f.acatalog.at(r));
-            positions.add(r);
+            for (Edge<T> edge in path_edges) {
+                //Find bridge for first node in edge to second node 
+                Node<T> v = edge.endpoints.first;
+                Node<T> w = edge.endpoints.second;
+                AugmentedCatalog A_v = v.acatalog;
+                //Go thru catalog for bridge
+                //Check if edge for bridge is (v,w)
+                //bridgefound(A_w,i,x)
 
-            for (Edge edge in path_edges) {
-                if (edge not in edges_checked) {
-                    if(edge[0] in nodes_known) {
-                        Node v = edge[0];
-                        Node w = edge[1];
-                        AugmentedCatalog A_v = v.acatalog;
-                        //Go thru catalog for bridge
-                        //Check if edge for bridge is (v,w)
-                        //bridgefound(A_w,i,x)
-                    }
-                    else if(edge[1] in nodes_known) {
-                        Node v = edge[1];
-                        Node w = edge[0];
-                        AugmentedCatalog A_v = v.acatalog;
-                        //Go thru catalog for bridge
-                        //Check if edge for bridge is (v,w)
-                        //bridgefound(A_w,i,x)
-                    } 
-                }
             }
 
             //Notes for me: For each node u and edge e conn. u w/ v, a list of bridges from u to v
