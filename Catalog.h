@@ -26,8 +26,8 @@ class Catalog {
         /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
          */
         Catalog() {
-            Record default_neginfinity(neg_inf,false, NULL);
-            Record default_infinity(inf,false, NULL);
+            Record default_neginfinity(neg_inf,false);
+            Record default_infinity(inf,false);
             default_neginfinity.setUpPointer(&default_infinity);
             bottomRecord = &default_neginfinity;
         }

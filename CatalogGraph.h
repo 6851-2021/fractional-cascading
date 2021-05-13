@@ -35,7 +35,7 @@ class CatalogGraph {
             
             //Step 2: Process all edges for fields
             map<T, set<int> > ranges;
-            map<T, map<int,pair<int,int> > edges_of_interest;
+            map<T, map<int,pair<int,int> > > edges_of_interest;
             //Process edges
             for (auto const& edge_and_endpoints : edges) {
                 int edge_label = edge_and_endpoints.first;
@@ -58,7 +58,7 @@ class CatalogGraph {
                 edges_of_interest[endpoint2][edge_label] = make_pair(edge_range.first,edge_range.second);
 
                 //Place them in the appropriate fields
-                Edge<T>* edgeObject = new Edge(endpoints,edge_ranges);
+                Edge<T>* edgeObject = new Edge<T>(endpoints,edge_range);
                 edges_[edge_label] = edgeObject;
                 allEdges.insert(edgeObject);
 
@@ -71,20 +71,20 @@ class CatalogGraph {
                 list<int> values = key_and_value.second;
 
                 //Create nodes and place in appropriate fields
-                Node<T>* nodeObject = new Node(label);
+                Node<T>* nodeObject = new Node<T>(label);
                 nodes_[label] = nodeObject;
                 allNodes.insert(nodeObject);
                 
                 //Fill up node's catalog
-                Catalog nodeCat = nodeObject->getCatalog();
+                Catalog* nodeCat = nodeObject->getCatalog();
                 set<int> rangeEnds = ranges[label];
                 values.sort();
-                Record* prevRecord =  nodeCat.getBottomRecord();
+                Record* prevRecord =  nodeCat->getBottomRecord();
                 list<int>::iterator it = values.begin();
-                while (it! = values.end()){
+                while (it != values.end()){
                     int value = *it;
                     Record* record_to_insert;
-                    if (rangeEnds.find(key) != rangeEnds.end()) {
+                    if (rangeEnds.find(value) != rangeEnds.end()) {
                         //Figure out the edge whose endpoint contains `value`
                         for (auto const& edge_and_endpoints : edges_of_interest[label]) {
                                 int edge_key =  edge_and_endpoints.first;
@@ -107,10 +107,10 @@ class CatalogGraph {
                         }
                         
                     } else {
-                        record_to_insert = new Record(value,false,nullptr);
+                        record_to_insert = new Record(value,false);
                     }
                     record_to_insert->setUpPointer(prevRecord->getUpPointer());
-                    prevRecord->setUpPointer(&record_to_insert);
+                    prevRecord->setUpPointer(record_to_insert);
                     prevRecord = record_to_insert;
                     it++;
                 }
@@ -129,9 +129,8 @@ class CatalogGraph {
         }
 
 
-        void updateCountFields(queue<AugmentedRecord*> count_queue) {
-            for (AugmentedRecord* record:count_queue) {
-                
+        void updateCountFields(deque<AugmentedRecord*> count_queue) {
+            for (AugmentedRecord* curr_record:count_queue) {
                 for (int i=0; i<6*d;i++) {
                     curr_record->setFlag(1);
                     curr_record = curr_record->getDownPointer(); 
@@ -143,11 +142,11 @@ class CatalogGraph {
             processClusters(count_queue);
         }
 
-        void processClusters(queue<AugmentedRecord*> count_queue) {
-            queue<BridgeRecord*> wide_gap_queue;
+        void processClusters(deque<AugmentedRecord*> count_queue) {
+            deque<BridgeRecord<T>*> wide_gap_queue;
             while(count_queue.size()) {
                 AugmentedRecord* curr_record = count_queue.front();
-                count_queue.pop();
+                count_queue.pop_front();
                 if(curr_record->getFlag()) {
                     // find bottom record in cluster
                     AugmentedRecord* p = curr_record;
@@ -157,18 +156,19 @@ class CatalogGraph {
                     // ranking process
                     int rank = 1;
                     int pastOnes = 0;
-                    BridgeRecord* lastBridge;
+                    BridgeRecord<T>* lastBridge;
                     while(p->getUpPointer() && (p->getUpPointer()->getFlag() || pastOnes < 6 * d)) {
                         if(p->getBridge()) {
-                            p->setRank(rank);
-                            int newRecords = p->getRank()-p->getPrevBridge()->getRank();
-                            p->setCount(p->getCount() + newRecords);
-                            int k = p->getCompanionBridge()->getCount();
-                            if(p->getCount() + k >= 6 * d && p->getCount() + k - newRecords < 6 * d) {
-                                wide_gap_queue.push(p);
+                            BridgeRecord<T>* b = static_cast<BridgeRecord<T>*>(p);
+                            b->setRank(rank);
+                            int newRecords = b->getRank()-b->getPrevBridge()->getRank();
+                            b->setCount(b->getCount() + newRecords);
+                            int k = b->getCompanionBridge()->getCount();
+                            if(b->getCount() + k >= 6 * d && b->getCount() + k - newRecords < 6 * d) {
+                                wide_gap_queue.push_back(b);
                             }
-                            p->getPrevBridge()->setRank(0);
-                            lastBridge = p;
+                            b->getPrevBridge()->setRank(0);
+                            lastBridge = b;
                         }
                         rank++;
                         p->setFlag(0);
@@ -178,17 +178,17 @@ class CatalogGraph {
                     lastBridge->setRank(0);
                 }
             }
-            restoreGapInvariants(queue<BridgeRecord*> wide_gap_queue);
+            restoreGapInvariants(wide_gap_queue);
         }
 
-        void restoreGapInvariants(queue<BridgeRecord*> wide_gap_queue) {
+        void restoreGapInvariants(deque<BridgeRecord<T>*> wide_gap_queue) {
             // gap to restore is betweeen b and b->getPrevBridge()
-            queue<AugmentedRecord*> count_queue;
+            deque<AugmentedRecord*> count_queue;
             while (wide_gap_queue.size()) {
-                BridgeRecord* b = wide_gap_queue.front();
-                BridgeRecord* b_comp = b->getCompanionBridge();
-                Edge e = b.getEdge();
-                wide_gap_queue.pop();
+                BridgeRecord<T>* b = wide_gap_queue.front();
+                BridgeRecord<T>* b_comp = b->getCompanionBridge();
+                Edge<T>* e = b->getEdge();
+                wide_gap_queue.pop_front();
                 // merge gaps
                 AugmentedRecord* b_gap = b->getPrevBridge()->getUpPointer();
                 AugmentedRecord* b_comp_gap = b_comp->getPrevBridge()->getUpPointer();
@@ -217,10 +217,10 @@ class CatalogGraph {
                     recordNum++;
                     //construct new bridges and add to count queue
                     if(recordNum%(3*d) == 0){
-                        BridgeRecord b_copy(lastRecord->getKey(), lastRecord->getCPointer(),
+                        BridgeRecord<T>* b_copy = new BridgeRecord<T>(lastRecord->getKey(), lastRecord->getCPointer(),
                             lastRecord->getFlag(), e);
-                        BridgeRecord b_comp_copy(lastRecord->getKey(), lastRecord->getCPointer(),
-                            lastRecord->getFlag()), e;
+                        BridgeRecord<T>* b_comp_copy = new BridgeRecord<T>(lastRecord->getKey(), lastRecord->getCPointer(),
+                            lastRecord->getFlag(), e);
                         b_copy->setUpPointer(b_gap);
                         b_comp_copy->setUpPointer(b_comp_gap);
                         b_copy->setDownPointer(b_gap->getDownPointer());
@@ -238,8 +238,8 @@ class CatalogGraph {
                         b_comp->setPrevBridge(b_comp_copy);
                         b_comp_copy->setCompanionBridge(b_copy);
 
-                        count_queue.push(b_copy);
-                        count_queue.push(b_comp_copy);
+                        count_queue.push_back(b_copy);
+                        count_queue.push_back(b_comp_copy);
                     }
                 }
             }
@@ -247,72 +247,80 @@ class CatalogGraph {
         }
 
         void constructAugmentedCatalogs() {
-            queue<AugmentedRecord*> count_queue;
-            map<T,Node<T>>::iterator it = nodes_.begin();
+            deque<AugmentedRecord*> count_queue;
+            typename map<T,Node<T>* >::iterator it = nodes_.begin();
             while (it != nodes_.end()) {
                 T label = it->first;
-                Node<T> node = it->second;
+                Node<T>* node = it->second;
                 AugmentedRecord* prev = NULL;
-                Record* record = node.catalog.getBottomRecord();
+                Record* record = node->getCatalog()->getBottomRecord();
                 while(record) {
                     //Stage 1: Insert a copy of p (called r in the paper) into A_v and a pointer to r into count_queue
-                    AugmentedRecord augRecord;
-                    if(record.getEndOfRange()){
+                    if(record->getEndOfRange()){
                         // companion bridges? also which endpoint?
-                        augRecord = BridgeRecord<T>(record->getKey(), record, 0, record->getEdge());
-                        if(record->getEdge().getRange().first == record->getKey()) {
-                            if(record->getEdge().getEndpoints().first == label) {
-                                if(D_uv_bottom[record->getEdge().getEndpoints().second][label]){
-                                    augRecord.setCompanionBridge(D_uv_bottom[record->getEdge().getEndpoints().second][label]);
-                                    D_uv_bottom[record->getEdge().getEndpoints().second][label]->setCompanionBridge(&augRecord);
+                        Edge<T>* e = edges_[record->getEdge()];
+                        BridgeRecord<T>* augRecord = new BridgeRecord<T>(record->getKey(), record, 0, e);
+                        if(e->getRange().first == record->getKey()) {
+                            if(e->getEndpoints().first == label) {
+                                if(D_uv_bottom[e->getEndpoints().second][label]){
+                                    augRecord->setCompanionBridge(D_uv_bottom[e->getEndpoints().second][label]);
+                                    D_uv_bottom[e->getEndpoints().second][label]->setCompanionBridge(augRecord);
                                 }
-                                D_uv_bottom[label][record->getEdge().getEndpoints().second] = &augRecord;
+                                D_uv_bottom[label][e->getEndpoints().second] = augRecord;
                             } else {
-                                if(D_uv_bottom[record->getEdge().getEndpoints().first][label]){
-                                    augRecord.setCompanionBridge(D_uv_bottom[record->getEdge().getEndpoints().first][label]);
-                                    D_uv_bottom[record->getEdge().getEndpoints().first][label]->setCompanionBridge(&augRecord);
+                                if(D_uv_bottom[e->getEndpoints().first][label]){
+                                    augRecord->setCompanionBridge(D_uv_bottom[e->getEndpoints().first][label]);
+                                    D_uv_bottom[e->getEndpoints().first][label]->setCompanionBridge(augRecord);
                                 }
-                                D_uv_bottom[label][record->getEdge().getEndpoints().first] = &augRecord;
+                                D_uv_bottom[label][e->getEndpoints().first] = augRecord;
                             }
                         } else {
-                            if(record->getEdge().getEndpoints().first == label) {
-                                augRecord.setPrevBridge(D_uv_bottom[label][record->getEdge().getEndpoints().second]);
-                                if(D_uv_top[record->getEdge().getEndpoints().second][label]){
-                                    augRecord.setCompanionBridge(D_uv_top[record->getEdge().getEndpoints().second][label]);
-                                    D_uv_top[record->getEdge().getEndpoints().second][label]->setCompanionBridge(&augRecord);
+                            if(e->getEndpoints().first == label) {
+                                augRecord->setPrevBridge(D_uv_bottom[label][e->getEndpoints().second]);
+                                if(D_uv_top[e->getEndpoints().second][label]){
+                                    augRecord->setCompanionBridge(D_uv_top[e->getEndpoints().second][label]);
+                                    D_uv_top[e->getEndpoints().second][label]->setCompanionBridge(augRecord);
                                 }
-                                D_uv_top[label][record->getEdge().getEndpoints().second] = &augRecord;
+                                D_uv_top[label][e->getEndpoints().second] = augRecord;
                             } else {
-                                augRecord.setPrevBridge(D_uv_bottom[label][record->getEdge().getEndpoints().first]);
-                                if(D_uv_top[record->getEdge().getEndpoints().first][label]){
-                                    augRecord.setCompanionBridge(D_uv_top[record->getEdge().getEndpoints().first][label]);
-                                    D_uv_top[record->getEdge().getEndpoints().first][label]->setCompanionBridge(&augRecord);
+                                augRecord->setPrevBridge(D_uv_bottom[label][e->getEndpoints().first]);
+                                if(D_uv_top[e->getEndpoints().first][label]){
+                                    augRecord->setCompanionBridge(D_uv_top[e->getEndpoints().first][label]);
+                                    D_uv_top[e->getEndpoints().first][label]->setCompanionBridge(augRecord);
                                 }
-                                D_uv_top[label][record->getEdge().getEndpoints().first] = &augRecord;
+                                D_uv_top[label][e->getEndpoints().first] = augRecord;
                             }
                         }
-                        count_queue.push(augRecord);
+                        count_queue.push_back(augRecord);
+                        if(prev) {
+                            augRecord->setDownPointer(prev);
+                            prev->setUpPointer(augRecord);
+                        } 
+                        prev = augRecord;
+                        record = record->getUpPointer();
                     } else {
-                        augRecord = AugmentedRecord(record.getKey(), &record, 0);
-                        count_queue.push(augRecord);
+                        AugmentedRecord* augRecord = new AugmentedRecord(record->getKey(), record, 0);
+                        count_queue.push_back(augRecord);
+                        if(prev) {
+                            augRecord->setDownPointer(prev);
+                            prev->setUpPointer(augRecord);
+                        } 
+                        prev = augRecord;
+                        record = record->getUpPointer();
                     }
-                    if(prev) {
-                        augRecord.setDownPointer(prev);
-                        prev->setUpPointer(&augRecord);
-                    } 
-                    prev = &augRecord;
-                    record = record->getUpPointer();
                 }
                 updateCountFields(count_queue);
-                node.createLookupTable();
+                node->createLookupTable();
             }
         }
+        
         
         /**
          * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
          * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
          * the first value greater than or equal to x
          */
+        /*
         list<int> multipleLookUpQuery(int x, list<Node> path_nodes, list<Edge> path_edges) {
             list<int> sigma_x;
             list<int> positions;
@@ -350,8 +358,9 @@ class CatalogGraph {
             // endpoints of R_e are the first and last records in D_uv
             return sigma_x;
         }
+        
 
-        int bridgeFound(BridgeRecord A_w, int i, int x) {
+        int bridgeFound(BridgeRecord<T> A_w, int i, int x) {
             x_found = false; 
             //curr = A_w at i
             prev = 0;
@@ -361,13 +370,16 @@ class CatalogGraph {
             }
         return prev; //curr
         }
+        */
 
         //Given a list of ints arr, return int at i
+        /*
         T get<T>(list<T> arr, int i) {
             auto list_pointer = arr.begin();
             std::advance(arr,i);
             return *list_pointer;
         }
+        */
 
     
 

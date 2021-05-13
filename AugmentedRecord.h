@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Record.h"
 #include <stddef.h>
 
@@ -28,7 +30,23 @@ class AugmentedRecord {
                 this->c_pointer = c_pointer;
                 this->flag = flag;
             }
+
+        AugmentedRecord(int key, Record* c_pointer, bool flag, bool bridge) {
+                this->key = key;
+                this->c_pointer = c_pointer;
+                this->flag = flag;
+                this->isBridge = bridge;
+            }
         
+        AugmentedRecord(int key, Record* c_pointer, AugmentedRecord* up_pointer, AugmentedRecord* down_pointer, 
+                bool flag) {
+            this->key = key;
+            this->c_pointer = c_pointer;
+            this->up_pointer = up_pointer;
+            this->down_pointer = down_pointer;
+            this->flag = flag;
+            }
+
         int getKey() {
             return this->key;
         }

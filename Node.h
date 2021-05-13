@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Catalog.h"
 #include "AugmentedCatalog.h"
 
@@ -10,9 +12,9 @@ template <typename T>
 
 class Node {
     private:
-        Catalog catalog = new Catalog();
+        Catalog catalog = Catalog();
         T label;
-        AugmentedCatalog acatalog  = new AugmentedCatalog();
+        AugmentedCatalog<T> acatalog = AugmentedCatalog<T>();;
         map<int, pair<int,AugmentedRecord*> > acatlogLookupTable;
     public:
         Node(T label) {
@@ -23,7 +25,7 @@ class Node {
             return &this->catalog;
         }
 
-        AugmentedCatalog*  getAugCatalog() {
+        AugmentedCatalog<T>* getAugCatalog() {
             return &this->acatalog;
         }
 
@@ -32,10 +34,12 @@ class Node {
         }
 
 
-        void createLookupTable(int value) {
+        void createLookupTable() {
             int count = 0;
-            for (AugmentedRecord record:acatalog) {
-                acatlogLookupTable[count]  = make_pair(record.getKey(),&record);
+            AugmentedRecord* record = acatalog.getBottomRecord();
+            while(record) {
+                acatlogLookupTable[count]  = make_pair(record->getKey(),record);
+                record = record->getUpPointer();
                 count++;
             }
         }
