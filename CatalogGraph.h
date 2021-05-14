@@ -79,7 +79,9 @@ class CatalogGraph {
                 Catalog* nodeCat = nodeObject->getCatalog();
                 set<int> rangeEnds = ranges[label];
                 values.sort();
-                Record* prevRecord =  nodeCat->getBottomRecord();
+                values.push_back(inf);
+                values.push_front(neg_inf);
+                Record* prevRecord =  NULL;
                 list<int>::iterator it = values.begin();
                 while (it != values.end()){
                     int value = *it;
@@ -105,12 +107,15 @@ class CatalogGraph {
                                     break;
                                 }
                         }
-                        
                     } else {
                         record_to_insert = new Record(value,false);
                     }
-                    record_to_insert->setUpPointer(prevRecord->getUpPointer());
-                    prevRecord->setUpPointer(record_to_insert);
+                    if(prevRecord){
+                        record_to_insert->setUpPointer(prevRecord->getUpPointer());
+                        prevRecord->setUpPointer(record_to_insert);
+                    } else {
+                        nodeCat->setBottomRecord(record_to_insert);
+                    }
                     prevRecord = record_to_insert;
                     it++;
                 }
@@ -151,7 +156,7 @@ class CatalogGraph {
                     // find bottom record in cluster
                     AugmentedRecord* p = curr_record;
                     while(p->getDownPointer() && p->getDownPointer()->getFlag()) {
-                        p = curr_record->getDownPointer();
+                        p = p->getDownPointer();
                     }
                     // ranking process
                     int rank = 1;
@@ -162,14 +167,13 @@ class CatalogGraph {
                             BridgeRecord<T>* b = dynamic_cast<BridgeRecord<T>*>(p);
                             b->getRank();
                             b->setRank(rank);
-                            int newRecords = b->getRank();
                             if(b->getPrevBridge()){
-                                newRecords -= b->getPrevBridge()->getRank();
+                                int gapRecords = rank - b->getPrevBridge()->getRank();
+                                int newRecords = gapRecords - b->getCount();
                                 b->getPrevBridge()->setRank(0);
-                                b->setCount(b->getCount() + newRecords);
-                                int k = 0;
+                                b->setCount(gapRecords);
                                 if(b->getCompanionBridge()){
-                                    k = b->getCompanionBridge()->getCount();
+                                    int k = b->getCompanionBridge()->getCount();
                                     if(b->getCount() + k >= 6 * d && b->getCount() + k - newRecords < 6 * d) {
                                         wide_gap_queue.push_back(b);
                                     }

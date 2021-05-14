@@ -26,14 +26,15 @@ class Catalog {
         /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
          */
         Catalog() {
-            Record* default_neginfinity = new Record(neg_inf,false);
-            Record* default_infinity = new Record(inf,false);
-            default_neginfinity->setUpPointer(default_infinity);
-            bottomRecord = default_neginfinity;
+
         }
 
         Record* getBottomRecord() {
             return this->bottomRecord;
+        }
+
+        void setBottomRecord(Record* bottomRecord) {
+            this->bottomRecord = bottomRecord;
         }
         // /**
         //  * @brief Searches for a record in the catalog by key
