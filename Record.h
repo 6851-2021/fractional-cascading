@@ -1,3 +1,4 @@
+#pragma once
 #include <stddef.h>
 using namespace std;
 
@@ -17,12 +18,17 @@ class Record {
         int key;
         Record* up_pointer = NULL;
         bool endOfRange;
-        int edge;
+        int edge = -1;
     public:
+        Record(int key, bool endOfRange) {
+            this->key = key;
+            this->endOfRange = endOfRange;
+        }
+
         Record(int key, bool endOfRange,int edge_label) {
             this->key = key;
             this->endOfRange = endOfRange;
-            this->edge = -1;
+            this->edge = edge_label;
         }
 
 

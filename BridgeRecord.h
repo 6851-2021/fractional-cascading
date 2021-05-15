@@ -17,12 +17,12 @@ class BridgeRecord : public AugmentedRecord {
     private:
         BridgeRecord* prev_bridge = NULL;
         BridgeRecord* companion_bridge = NULL;
-        Edge<T> edge;
+        Edge<T>* edge;
         int count = 0;
         int rank = 0;
     public:
-        BridgeRecord(int key, Record* c_succesor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag
-            BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T> edge, int count, int rank) :
+        BridgeRecord(int key, Record* c_successor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag,
+            BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T>* edge, int count, int rank) :
                 AugmentedRecord(key, c_successor, a_successor, a_predecessor, flag) {
                     this->prev_bridge = prev_bridge;
                     this->companion_bridge = companion_bridge;
@@ -30,6 +30,11 @@ class BridgeRecord : public AugmentedRecord {
                     this->count = count;
                     this->rank = rank;
                     this->isBridge = true;
+                }
+
+        BridgeRecord(int key, Record* c_successor, bool flag, Edge<T>* edge) :
+                AugmentedRecord(key, c_successor, flag, true) {
+                    this->edge = edge;
                 }
 
         /**
@@ -60,7 +65,7 @@ class BridgeRecord : public AugmentedRecord {
          * @brief Get the Edge object
          * @return Edge 
          */
-        Edge getEdge() {
+        Edge<T>* getEdge() {
             return this->edge;
         }
 
