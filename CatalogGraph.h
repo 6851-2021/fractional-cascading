@@ -308,56 +308,40 @@ class CatalogGraph {
             }
         }
         
-        /**
-         * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
-         * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
-         * the first value greater than or equal to x
-         */
-        list<int> multipleLookUpQuery(int x, list<Edge<T>> path_edges) {
-            list<int> sigma_x;
-            list<int> positions;
-            Edge<T> first_edge = path_edges[0];
-            Node<T> f = first_edge.endpoints.first;
-            AugmentedRecord r = f.acatalog.search(x); //Get Augmented Record thru Lookup
-            //sigma_x.add(r.getKey());
-            auto ac_pointer = r.getCPointer();
-            sigma_x.push_back(ac_pointer*); //Carryover lookup into the catalog
+        // /**
+        //  * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
+        //  * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
+        //  * the first value greater than or equal to x
+        //  */
+        // list<int> multipleLookUpQuery(int x, list<Edge<T>> path_edges) {
+        //     list<int> sigma_x;
+        //     Edge<T> first_edge = path_edges[0];
+        //     Node<T> f = first_edge.endpoints.first;
+        //     AugmentedRecord r = f.search(x); //Get Augmented Record thru Lookup
+        //     auto ac_pointer = r.getCPointer();
+        //     sigma_x.push_back(ac_pointer*); //Carryover lookup into the catalog
 
-            for (Edge<T> edge in path_edges) {
-                //Find bridge for first node in edge to second node 
-                Node<T> v = edge.endpoints.first;
-                Node<T> w = edge.endpoints.second;
-                AugmentedCatalog A_v = v.acatalog;
-                //Go thru catalog for bridge
-                //Check if edge for bridge is (v,w)
-                //bridgefound(A_w,i,x)
+        //     for (Edge<T> edge in path_edges) {
+        //         //Find bridge for first node in edge to second node 
+        //         Node<T> v = edge.endpoints.first;
+        //         Node<T> w = edge.endpoints.second;
+        //         AugmentedCatalog* A_v = v.getAugCatalog();
+        //         bool bridge_found = false;
+        //         while (bridge_found != true) {
+        //             if (r.isBridge == true) {
+        //                 //Check the edge to see if it (v,w)
+        //                 // If so, stop the loop and continue to bridge_found
+        //                 bridge_found = true;
+        //             }
+        //             auto up_pointer = r.getUpPointer();
+        //             r = *up_pointer;            
+        //         }
 
-            }
+        //     }
 
-            //Notes for me: For each node u and edge e conn. u w/ v, a list of bridges from u to v
-            // is defined as an ordered subset of the records in A_v having values common to A_u andA_v and lying in Range R_e
-            // endpoints of R_e are the first and last records in D_uv
-            return sigma_x;
-        }
-
-        int bridgeFound(BridgeRecord A_w, int i, int x) {
-            x_found = false; 
-            //curr = A_w at i
-            prev = 0;
-            while (x_found == false){
-                //Find x thru pointers
-                x_found = true;
-            }
-        return prev; //curr
-        }
-
-        //Given a list of ints arr, return int at i
-        T get<T>(list<T> arr, int i) {
-            auto list_pointer = arr.begin();
-            std::advance(arr,i);
-            return *list_pointer;
-        }
-
-    
-
+        //     //Notes for me: For each node u and edge e conn. u w/ v, a list of bridges from u to v
+        //     // is defined as an ordered subset of the records in A_v having values common to A_u andA_v and lying in Range R_e
+        //     // endpoints of R_e are the first and last records in D_uv
+        //     return sigma_x;
+        // }
 };
