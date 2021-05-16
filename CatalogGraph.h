@@ -343,7 +343,7 @@ class CatalogGraph {
         //     Node<T> f = first_edge.endpoints.first;
         //     AugmentedRecord* r = f.search(x); //Get Augmented Record thru Lookup
         //     auto ac_pointer = r.getCPointer();
-        //     sigma_x.push_back(ac_pointer*); //Carryover lookup into the catalog
+        //     sigma_x.push_back(*ac_pointer); //Carryover lookup into the catalog
 
         //     for (Edge<T> edge in path_edges) {
         //         //Find bridge for first node in edge to second node 
@@ -354,6 +354,7 @@ class CatalogGraph {
         //         AugmentedCatalog* A_v = v.getAugCatalog();
         //         bool bridge_found = false;
         //         while (bridge_found != true) {
+        //             //If this record is a bridge
         //             if (r.isBridge == true) {
         //                 //Check the edge to see if it (v,w)
         //                 Edge<T> bridge_edge = r.getEdge();
@@ -369,26 +370,31 @@ class CatalogGraph {
         //                 bool succesor_found = false;
         //                 while (succesor_found == false) {
         //                     if (r.getKey() == x) {
-        //                         //stop
-        //                         succesor_found = True;
-        //                         //Pushback value of r in c_w catalog
-
+        //                         //stop here
+        //                         succesor_found = true;
+        //                         auto c_pointer = r.getCPointer();
+        //                         sigma_x.push_back(*c_pointer);//Pushback value of r in c_w catalog
         //                     }
         //                     else if (r.getKey() < x) {
-        //                         succesor_found = True;
-        //                         //go up 1
-        //                         //Pushback value of r in c_w catalog
-
+        //                         //Go up one pointer
+        //                         succesor_found = true;
+        //                         auto up_pointer = r.getUpPointer(); //go up 1
+        //                         r = up_pointer;
+        //                         auto c_pointer = r.getCPointer();
+        //                         sigma_x.push_back(*c_pointer); //Pushback value of r in c_w catalog
         //                     }
         //                     else{
         //                         //keep going
+        //                         auto down_pointer = r.getDownPointer();
+        //                         r = down_pointer;
         //                     }
         //                 }
         //                 }
         //             }
+        //             //If this record is not a bridge
         //             else {
         //             auto up_pointer = r.getUpPointer();
-        //             r = *up_pointer;  
+        //             r = up_pointer;  
         //             }          
         //         }
 
