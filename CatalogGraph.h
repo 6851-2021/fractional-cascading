@@ -332,40 +332,67 @@ class CatalogGraph {
             }
         }
         
-        // /**
-        //  * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
-        //  * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
-        //  * the first value greater than or equal to x
-        //  */
+        /**
+         * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
+         * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
+         * the first value greater than or equal to x
+         */
         // list<int> multipleLookUpQuery(int x, list<Edge<T>> path_edges) {
         //     list<int> sigma_x;
         //     Edge<T> first_edge = path_edges[0];
         //     Node<T> f = first_edge.endpoints.first;
-        //     AugmentedRecord r = f.search(x); //Get Augmented Record thru Lookup
+        //     AugmentedRecord* r = f.search(x); //Get Augmented Record thru Lookup
         //     auto ac_pointer = r.getCPointer();
         //     sigma_x.push_back(ac_pointer*); //Carryover lookup into the catalog
 
         //     for (Edge<T> edge in path_edges) {
         //         //Find bridge for first node in edge to second node 
-        //         Node<T> v = edge.endpoints.first;
-        //         Node<T> w = edge.endpoints.second;
+        //         T v_label = edge.endpoints.first;
+        //         T w_label = edge.endpoints.second;
+        //         Node v = nodes_[v_label];
+        //         Node w = nodes[w_label];
         //         AugmentedCatalog* A_v = v.getAugCatalog();
         //         bool bridge_found = false;
         //         while (bridge_found != true) {
         //             if (r.isBridge == true) {
         //                 //Check the edge to see if it (v,w)
-        //                 // If so, stop the loop and continue to bridge_found
+        //                 Edge<T> bridge_edge = r.getEdge();
+        //                 T n1_label = bridge_edge.endpoints.first;
+        //                 T n2_label = bridge_edge.endpoints.second;
+        //                 if ( (v_label == n1_label && w_label == n2_label) || (v_label == n2_label && w_label == n1_label)) {
+        //                 // If so, stop the loop and continue to bridge_found logic
         //                 bridge_found = true;
+        //                 // Follow bridge pointer to A_w
+        //                 BridgeRecord* aw_pointer = r.getCompanionBridge();
+        //                 r = aw_pointer;
+        //                 // Follow down pointers until you find new r
+        //                 bool succesor_found = false;
+        //                 while (succesor_found == false) {
+        //                     if (r.getKey() == x) {
+        //                         //stop
+        //                         succesor_found = True;
+        //                         //Pushback value of r in c_w catalog
+
+        //                     }
+        //                     else if (r.getKey() < x) {
+        //                         succesor_found = True;
+        //                         //go up 1
+        //                         //Pushback value of r in c_w catalog
+
+        //                     }
+        //                     else{
+        //                         //keep going
+        //                     }
+        //                 }
+        //                 }
         //             }
+        //             else {
         //             auto up_pointer = r.getUpPointer();
-        //             r = *up_pointer;            
+        //             r = *up_pointer;  
+        //             }          
         //         }
 
         //     }
-
-        //     //Notes for me: For each node u and edge e conn. u w/ v, a list of bridges from u to v
-        //     // is defined as an ordered subset of the records in A_v having values common to A_u andA_v and lying in Range R_e
-        //     // endpoints of R_e are the first and last records in D_uv
         //     return sigma_x;
         // }
 };
