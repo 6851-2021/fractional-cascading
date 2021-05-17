@@ -337,68 +337,70 @@ class CatalogGraph {
          * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
          * the first value greater than or equal to x
          */
-        // list<int> multipleLookUpQuery(int x, list<Edge<T>> path_edges) {
-        //     list<int> sigma_x;
-        //     Edge<T> first_edge = path_edges[0];
-        //     Node<T> f = first_edge.endpoints.first;
-        //     AugmentedRecord* r = f.search(x); //Get Augmented Record thru Lookup
-        //     auto ac_pointer = r.getCPointer();
-        //     sigma_x.push_back(*ac_pointer); //Carryover lookup into the catalog
+        list<int> multipleLookUpQuery(int x, list<Edge<T> > path_edges) {
+            list<int> sigma_x;
+            Edge<T> first_edge = path_edges[0];
+            Node<T> f = first_edge.endpoints.first;
+            AugmentedRecord* r = f.search(x); //Get Augmented Record thru Lookup
+            auto ac_pointer = r->getCPointer();
+            sigma_x.push_back(ac_pointer->getKey()); //Carryover lookup into the catalog
 
-        //     for (Edge<T> edge in path_edges) {
-        //         //Find bridge for first node in edge to second node 
-        //         T v_label = edge.endpoints.first;
-        //         T w_label = edge.endpoints.second;
-        //         Node v = nodes_[v_label];
-        //         Node w = nodes[w_label];
-        //         AugmentedCatalog* A_v = v.getAugCatalog();
-        //         bool bridge_found = false;
-        //         while (bridge_found != true) {
-        //             //If this record is a bridge
-        //             if (r.isBridge == true) {
-        //                 //Check the edge to see if it (v,w)
-        //                 Edge<T> bridge_edge = r.getEdge();
-        //                 T n1_label = bridge_edge.endpoints.first;
-        //                 T n2_label = bridge_edge.endpoints.second;
-        //                 if ( (v_label == n1_label && w_label == n2_label) || (v_label == n2_label && w_label == n1_label)) {
-        //                 // If so, stop the loop and continue to bridge_found logic
-        //                 bridge_found = true;
-        //                 // Follow bridge pointer to A_w
-        //                 BridgeRecord* aw_pointer = r.getCompanionBridge();
-        //                 r = aw_pointer;
-        //                 // Follow down pointers until you find new r
-        //                 bool succesor_found = false;
-        //                 while (succesor_found == false) {
-        //                     if (r.getKey() == x) {
-        //                         //stop here
-        //                         succesor_found = true;
-        //                         auto c_pointer = r.getCPointer();
-        //                         sigma_x.push_back(*c_pointer);//Pushback value of r in c_w catalog
-        //                     }
-        //                     else if (r.getKey() < x) {
-        //                         //Go up one pointer
-        //                         succesor_found = true;
-        //                         auto up_pointer = r.getUpPointer(); //go up 1
-        //                         r = up_pointer;
-        //                         auto c_pointer = r.getCPointer();
-        //                         sigma_x.push_back(*c_pointer); //Pushback value of r in c_w catalog
-        //                     }
-        //                     else{
-        //                         //keep going
-        //                         auto down_pointer = r.getDownPointer();
-        //                         r = down_pointer;
-        //                     }
-        //                 }
-        //                 }
-        //             }
-        //             //If this record is not a bridge
-        //             else {
-        //             auto up_pointer = r.getUpPointer();
-        //             r = up_pointer;  
-        //             }          
-        //         }
+            for (Edge<T> edge: path_edges) {
+                //Find bridge for first node in edge to second node 
+                T v_label = edge.endpoints.first;
+                T w_label = edge.endpoints.second;
+                Node<T> v = nodes_[v_label];
+                Node<T> w = nodes_[w_label];
+                AugmentedCatalog<T>* A_v = v.getAugCatalog();
+                bool bridge_found = false;
+                while (bridge_found != true) {
+                    //If this record is a bridge
+                    if (r->getBridge() == true) {
+                        //Look at where to use bridge_r vs r, how do i determine when to switch, can i declare r as AugRec if it is a BridgeRec?
+                        BridgeRecord<T> bridge_r = r;
+                        //Check the edge to see if it (v,w)
+                        Edge<T> bridge_edge = bridge_r->getEdge();
+                        T n1_label = bridge_edge.endpoints.first;
+                        T n2_label = bridge_edge.endpoints.second;
+                        if ( (v_label == n1_label && w_label == n2_label) || (v_label == n2_label && w_label == n1_label)) {
+                        // If so, stop the loop and continue to bridge_found logic
+                        bridge_found = true;
+                        // Follow bridge pointer to A_w
+                        BridgeRecord<T>* aw_pointer = bridge_r->getCompanionBridge();
+                        r = aw_pointer;
+                        // Follow down pointers until you find new r
+                        bool succesor_found = false;
+                        while (succesor_found == false) {
+                            if (r->getKey() == x) {
+                                //stop here
+                                succesor_found = true;
+                                auto c_pointer = r->getCPointer();
+                                sigma_x.push_back(c_pointer->getKey());//Pushback value of r in c_w catalog
+                            }
+                            else if (r->getKey() < x) {
+                                //Go up one pointer
+                                succesor_found = true;
+                                auto up_pointer = r->getUpPointer(); //go up 1
+                                r = up_pointer;
+                                auto c_pointer = r->getCPointer();
+                                sigma_x.push_back(c_pointer->getKey()); //Pushback value of r in c_w catalog
+                            }
+                            else{
+                                //keep going
+                                auto down_pointer = r->getDownPointer();
+                                r = down_pointer;
+                            }
+                        }
+                        }
+                    }
+                    //If this record is not a bridge
+                    else {
+                    auto up_pointer = r->getUpPointer();
+                    r = up_pointer;  
+                    }          
+                }
 
-        //     }
-        //     return sigma_x;
-        // }
+            }
+            return sigma_x;
+        }
 };
