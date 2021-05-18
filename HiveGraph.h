@@ -91,20 +91,20 @@ class HiveGraph {
                     maxY[x.first] = endpoints[i].first.first;
                 }
             }
+            
             // sweep from right to left to remove anomalies
-            set< pair< pair<int, int>, pair<int, int> > > pushList;
             for(int i = rays.size()-1; i >= 0; i--) {
+                set< pair< pair<pair<int, int>, pair<int, int> >, pair<int, int> > > pushList;
                 int parity = 1;
                 bool firstBelow = false;
                 pair<pair<pair<int, int>, pair<int, int> >, int> prevBelow;
                 for(auto it = segAdj[i].begin(); it != segAdj[i].end(); it++) {
-                    if(firstBelow && it->first.second.first > it->first.first.first) {
+                    if(firstBelow && it->first.first.second > prevBelow.first.first.second && it->first.second.first > it->first.first.first) {
                         if(parity%2 != 0) {
                             // push above segment to below
                             adjList[it->first.first].push_back(make_pair(prevBelow.first.second.first, it->first.first.second));
                             adjList[make_pair(prevBelow.first.second.first, it->first.first.second)].push_back(it->first.first);
-                            segAdj[i][make_pair(it->first.first, make_pair(prevBelow.first.second.first, it->first.first.second))] = prevBelow.second;
-                            segAdj[prevBelow.second][make_pair(make_pair(prevBelow.first.second.first, it->first.first.second), it->first.first)] = i;
+                            pushList.insert(make_pair(make_pair(it->first.first, make_pair(prevBelow.first.second.first, it->first.first.second)), make_pair(i, prevBelow.second)));
                         }
                         parity++;
                     } else if(it->first.second.first <= it->first.first.first) {
@@ -113,28 +113,47 @@ class HiveGraph {
                         parity = 1;
                     }
                 }
+                for(auto it = pushList.begin(); it != pushList.end(); it++) {
+                    segAdj[it->second.first][it->first] = it->second.second;
+                    segAdj[it->second.second][make_pair(it->first.second, it->first.first)] = it->second.first;
+                }
             }
             // sweep from left to right to remove anomalies
-            pushList.clear();
             for(int i = 0; i < rays.size(); i++) {
-                int parity = 1;
-                bool firstAbove = false;
-                pair<pair<pair<int, int>, pair<int, int> >, int> prevAbove;
+                set< pair< pair<pair<int, int>, pair<int, int> >, pair<int, int> > > pushList;
+                vector<pair<pair<pair<int, int>, pair<int, int> >, int> > aboves;
                 for(auto it = segAdj[i].begin(); it != segAdj[i].end(); it++) {
-                    if(firstAbove && it->first.second.first < it->first.first.first) {
+                    if(it->first.second.first >= it->first.first.first) {
+                        aboves.push_back(*it);
+                    }
+                }
+                int parity = 1;
+                int j = 0;
+                bool firstAbove = false;
+                for(auto it = segAdj[i].begin(); it != segAdj[i].end(); it++) {
+                    if(it->first.first.second > aboves[j].first.first.second && it->first.first.second < aboves[j+1].first.first.second) {
                         if(parity%2 != 0) {
                             // push below segment to above
-                            adjList[it->first.first].push_back(make_pair(prevAbove.first.second.first, it->first.first.second));
-                            adjList[make_pair(prevAbove.first.second.first, it->first.first.second)].push_back(it->first.first);
-                            segAdj[i][make_pair(it->first.first, make_pair(prevAbove.first.second.first, it->first.first.second))] = prevAbove.second;
-                            segAdj[prevAbove.second][make_pair(make_pair(prevAbove.first.second.first, it->first.first.second), it->first.first)] = i;
+                            adjList[it->first.first].push_back(make_pair(aboves[j].first.second.first, it->first.first.second));
+                            adjList[make_pair(aboves[j].first.second.first, it->first.first.second)].push_back(it->first.first);
+                            pushList.insert(make_pair(make_pair(it->first.first, make_pair(aboves[j].first.second.first, it->first.first.second)), make_pair(i, aboves[j].second)));
                         }
                         parity++;
                     } else if(it->first.second.first >= it->first.first.first) {
-                        firstAbove = true;
-                        prevAbove = *it;
+                        if(firstAbove){
+                            if(j == aboves.size()-2){
+                                break;
+                            }
+                            j++;
+                        } else {
+                            firstAbove = true;
+                        }
                         parity = 1;
                     }
+                }
+                for(auto it = pushList.begin(); it != pushList.end(); it++) {
+                    segAdj[it->second.first][it->first] = it->second.second;
+                    segAdj[it->second.second][make_pair(it->first.second, it->first.first)] = it->second.first;
                 }
             }
         }
