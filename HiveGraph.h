@@ -3,6 +3,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -28,6 +29,8 @@ class HiveGraph {
 
     public:
         HiveGraph(vector<pair<pair<int, int>, pair<int, int> > > rays, bool vertical) {
+            ofstream fout;
+            fout.open("points.txt");
             vector<pair< pair<int, int> , int> > endpoints;
             for(int i = 0; i < rays.size(); i++) {
                 if(!vertical){
@@ -37,9 +40,11 @@ class HiveGraph {
             }
             sort(rays.begin(), rays.end(), comparatorXray);
             for(int i = 0; i < rays.size(); i++) {
+                fout << "(" << rays[i].first.first << "," << rays[i].first.second << "," << rays[i].second.first << "," << rays[i].second.second << ") ";
                 endpoints.push_back(make_pair(make_pair(rays[i].first.second, rays[i].first.first), i));
                 endpoints.push_back(make_pair(make_pair(rays[i].second.second, rays[i].second.first), i));
             }
+            fout << endl;
             sort(endpoints.begin(), endpoints.end(), comparatorY);
             map<int, int > maxY;
             set<pair<int, int> > active;
@@ -57,6 +62,7 @@ class HiveGraph {
                 if(up != active.end()){
                     adjList[fixed_endpoint].push_back(make_pair(rays[up->second].first.first, endpoints[i].first.first));
                     adjList[make_pair(rays[up->second].first.first, endpoints[i].first.first)].push_back(fixed_endpoint);
+                    fout << "(" << fixed_endpoint.first << "," << fixed_endpoint.second << "," << rays[up->second].first.first << "," << endpoints[i].first.first << ") ";
                     segAdj[endpoints[i].second][make_pair(fixed_endpoint, make_pair(rays[up->second].first.first, endpoints[i].first.first))] = up->second;
                     segAdj[up->second][make_pair(make_pair(rays[up->second].first.first, endpoints[i].first.first), fixed_endpoint)] = endpoints[i].second;
                     adjList[make_pair(rays[up->second].first.first, maxY[rays[up->second].first.first])].push_back(make_pair(rays[up->second].first.first, endpoints[i].first.first));
@@ -64,12 +70,14 @@ class HiveGraph {
                     maxY[rays[up->second].first.first] = endpoints[i].first.first;
                 } else {
                     adjList[fixed_endpoint].push_back(make_pair(inf, endpoints[i].first.first));
+                    fout << "(" << fixed_endpoint.first << "," << fixed_endpoint.second << "," << inf << "," << endpoints[i].first.first << ") ";
                     segAdj[endpoints[i].second][make_pair(fixed_endpoint, make_pair(inf, endpoints[i].first.first))] = -1;
                     segAdj[-1][make_pair(make_pair(inf, endpoints[i].first.first), fixed_endpoint)] = endpoints[i].second;
                 }
                 if(down != active.end()) {
                     adjList[fixed_endpoint].push_back(make_pair(rays[down->second].first.first, endpoints[i].first.first));
                     adjList[make_pair(rays[down->second].first.first, endpoints[i].first.first)].push_back(fixed_endpoint);
+                    fout << "(" << fixed_endpoint.first << "," << fixed_endpoint.second << "," << rays[down->second].first.first << "," << endpoints[i].first.first << ") ";
                     segAdj[endpoints[i].second][make_pair(fixed_endpoint, make_pair(rays[down->second].first.first, endpoints[i].first.first))] = down->second;
                     segAdj[down->second][make_pair(make_pair(rays[down->second].first.first, endpoints[i].first.first), fixed_endpoint)] = endpoints[i].second;
                     adjList[make_pair(rays[down->second].first.first, maxY[rays[down->second].first.first])].push_back(make_pair(rays[down->second].first.first, endpoints[i].first.first));
@@ -77,6 +85,7 @@ class HiveGraph {
                     maxY[rays[down->second].first.first] = endpoints[i].first.first;
                 } else {
                     adjList[fixed_endpoint].push_back(make_pair(neg_inf, endpoints[i].first.first));
+                    fout << "(" << fixed_endpoint.first << "," << fixed_endpoint.second << "," << neg_inf << "," << endpoints[i].first.first << ") ";
                     segAdj[endpoints[i].second][make_pair(fixed_endpoint, make_pair(neg_inf, endpoints[i].first.first))] = -2;
                     segAdj[-2][make_pair(make_pair(neg_inf, endpoints[i].first.first), fixed_endpoint)] = endpoints[i].second;
                 }
@@ -91,7 +100,7 @@ class HiveGraph {
                     maxY[x.first] = endpoints[i].first.first;
                 }
             }
-            
+            fout << endl;
             // sweep from right to left to remove anomalies
             for(int i = rays.size()-1; i >= 0; i--) {
                 set< pair< pair<pair<int, int>, pair<int, int> >, pair<int, int> > > pushList;
@@ -105,6 +114,7 @@ class HiveGraph {
                             adjList[it->first.first].push_back(make_pair(prevBelow.first.second.first, it->first.first.second));
                             adjList[make_pair(prevBelow.first.second.first, it->first.first.second)].push_back(it->first.first);
                             pushList.insert(make_pair(make_pair(it->first.first, make_pair(prevBelow.first.second.first, it->first.first.second)), make_pair(i, prevBelow.second)));
+                            fout << "(" << it->first.first.first << "," << it->first.first.second << "," << prevBelow.first.second.first << "," << it->first.first.second << ") ";
                         }
                         parity++;
                     } else if(it->first.second.first <= it->first.first.first) {
@@ -137,6 +147,7 @@ class HiveGraph {
                             adjList[it->first.first].push_back(make_pair(aboves[j].first.second.first, it->first.first.second));
                             adjList[make_pair(aboves[j].first.second.first, it->first.first.second)].push_back(it->first.first);
                             pushList.insert(make_pair(make_pair(it->first.first, make_pair(aboves[j].first.second.first, it->first.first.second)), make_pair(i, aboves[j].second)));
+                            fout << "(" << it->first.first.first << "," << it->first.first.second << "," << aboves[j].first.second.first << "," << it->first.first.second << ") ";
                         }
                         parity++;
                     } else if(it->first.second.first >= it->first.first.first) {
@@ -156,6 +167,7 @@ class HiveGraph {
                     segAdj[it->second.second][make_pair(it->first.second, it->first.first)] = it->second.first;
                 }
             }
+            fout << endl;
         }
 
         void printAdjList() {
