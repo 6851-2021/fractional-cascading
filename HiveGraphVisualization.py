@@ -32,8 +32,27 @@ class HiveVisualization:
         ani = animation.FuncAnimation(self.FIG, self.update_graph, new_lines, interval=1000, blit=False, repeat= False)
         pl.show()
 
-lines = [[(0, 1), (1, 1)], [(2, 3), (3, 3)], [(1, 2), (1, 3)]]
-new_lines = [([(2, 1), (2, 2)], [(3, 1), (1, 1)], [(6, 3), (7, 2)]),
-            ([(3, 5), (1, 2)], [(1, 4), (2, 6)])]
+f = open("points.txt", "r")
+page_lines = f.readlines()
+original_lines = page_lines[0].split()
+lines = []
+for line in original_lines:
+    line = line[1:-1]
+    x1, y1, x2, y2 = line.split(',')
+    lines.append([(float(x1), float(y1)), (float(x2), float(y2))])
+new_lines = []
+for i in range(1, len(page_lines)):
+    new_set_split = page_lines[i].split()
+    new_set = []
+    for line in new_set_split:
+        line = line[1:-1]
+        x1, y1, x2, y2 = line.split(',')
+        new_set.append([(float(x1), float(y1)), (float(x2), float(y2))])
+    new_lines.append(new_set)
+f.close()
+
+# lines = [[(0, 1), (1, 1)], [(2, 3), (3, 3)], [(1, 2), (1, 3)]]
+# new_lines = [([(2, 1), (2, 2)], [(3, 1), (1, 1)], [(6, 3), (7, 2)]),
+#             ([(3, 5), (1, 2)], [(1, 4), (2, 6)])]
 hv = HiveVisualization()
 hv.make_graphs(lines, new_lines)
