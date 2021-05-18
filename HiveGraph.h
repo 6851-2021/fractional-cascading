@@ -180,4 +180,8 @@ class HiveGraph {
                 }
             }
         }
+
+        void visualizeConstruction() {
+            system("python3 HiveGraphVisualization.py");
+        }
 };

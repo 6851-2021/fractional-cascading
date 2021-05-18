@@ -7,4 +7,5 @@ int main () {
     rays.push_back(make_pair(make_pair(5, 1), make_pair(5, 4)));
     HiveGraph smallTest(rays, true);
     smallTest.printAdjList();
+    smallTest.visualizeConstruction();
 }
