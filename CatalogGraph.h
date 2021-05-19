@@ -412,7 +412,8 @@ class CatalogGraph {
         }
     /**
      * Given a_record, an augmented record for the node a in a graph, along with conn_edge, an edge that
-     * contains a and b, return the augmented record that contains the value σ(a_rec.key,b_record)
+     * contains a and b, return the augmented record that contains the value σ(a_rec.key,b_record) or a nullptr
+     * if there is no bridge record that connects them
      */
     AugmentedRecord* findAugRecord(AugmentedRecord* a_record, Edge<T> conn_edge) {
         float x = a_record->getKey();
@@ -456,6 +457,9 @@ class CatalogGraph {
                         auto down_pointer = r->getDownPointer();
                         r = down_pointer;
                     }
+                    if (r== NULL) {
+                        return nullptr;
+                    }
                 }
                 }
             }
@@ -463,9 +467,12 @@ class CatalogGraph {
             else {
             auto up_pointer = r->getUpPointer();
             r = up_pointer;  
+            }
+            if (r == NULL) {
+                return nullptr;
             }          
         }
 
-        return a_record;
+        return nullptr;
     }
 };
