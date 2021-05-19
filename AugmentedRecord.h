@@ -18,27 +18,27 @@ class AugmentedRecord {
      *      states of the record during construction and maintaing of the record.
      */
     private:
-        int key;
+        float key;
         Record* c_pointer;
         AugmentedRecord* up_pointer = NULL;
         AugmentedRecord* down_pointer = NULL;
         bool flag;
         bool isBridge = false;
     public:
-        AugmentedRecord(int key, Record* c_pointer, bool flag) {
+        AugmentedRecord(float key, Record* c_pointer, bool flag) {
                 this->key = key;
                 this->c_pointer = c_pointer;
                 this->flag = flag;
             }
 
-        AugmentedRecord(int key, Record* c_pointer, bool flag, bool bridge) {
+        AugmentedRecord(float key, Record* c_pointer, bool flag, bool bridge) {
                 this->key = key;
                 this->c_pointer = c_pointer;
                 this->flag = flag;
                 this->isBridge = bridge;
             }
         
-        AugmentedRecord(int key, Record* c_pointer, AugmentedRecord* up_pointer, AugmentedRecord* down_pointer, 
+        AugmentedRecord(float key, Record* c_pointer, AugmentedRecord* up_pointer, AugmentedRecord* down_pointer, 
                 bool flag) {
             this->key = key;
             this->c_pointer = c_pointer;
@@ -49,7 +49,7 @@ class AugmentedRecord {
 
         virtual ~AugmentedRecord() {}
 
-        int getKey() {
+        float getKey() {
             return this->key;
         }
 
