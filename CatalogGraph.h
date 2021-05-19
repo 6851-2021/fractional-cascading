@@ -410,4 +410,62 @@ class CatalogGraph {
             }
             return sigma_x;
         }
+    /**
+     * Given a_record, an augmented record for the node a in a graph, along with conn_edge, an edge that
+     * contains a and b, return the augmented record that contains the value σ(a_rec.key,b_record)
+     */
+    AugmentedRecord* findAugRecord(AugmentedRecord* a_record, Edge<T> conn_edge) {
+        float x = a_record->getKey();
+        T v_label = conn_edge.endpoints.first;
+        T w_label = conn_edge.endpoints.second;
+
+        AugmentedRecord* r = a_record;
+        //Finding the bridge from a to b
+        bool bridge_found = false;
+        while (bridge_found != true) {
+            //If this record is a bridge
+            if (r->getBridge() == true) {
+                BridgeRecord<T> bridge_r = r;
+                //Check the edge to see if it (a,b)
+                Edge<T> bridge_edge = bridge_r->getEdge();
+                T a_label = bridge_edge.endpoints.first;
+                T b_label = bridge_edge.endpoints.second;
+                if ( (v_label == a_label && w_label == b_label) || (v_label == b_label && w_label == a_label)) {
+                // If so, stop the loop and continue to bridge_found logic
+                bridge_found = true;
+                // Follow bridge pointer to A_w
+                BridgeRecord<T>* aw_pointer = bridge_r->getCompanionBridge();
+                r = aw_pointer;
+                // Follow down pointers until you find new r
+                bool succesor_found = false;
+                while (succesor_found == false) {
+                    if (r->getKey() == x) {
+                        //stop here
+                        succesor_found = true;
+                        return r;
+                    }
+                    else if (r->getKey() < x) {
+                        //Go up one pointer
+                        succesor_found = true;
+                        auto up_pointer = r->getUpPointer(); //go up 1
+                        r = up_pointer;
+                        return r;
+                    }
+                    else{
+                        //keep going
+                        auto down_pointer = r->getDownPointer();
+                        r = down_pointer;
+                    }
+                }
+                }
+            }
+            //If this record is not a bridge
+            else {
+            auto up_pointer = r->getUpPointer();
+            r = up_pointer;  
+            }          
+        }
+
+        return a_record;
+    }
 };
