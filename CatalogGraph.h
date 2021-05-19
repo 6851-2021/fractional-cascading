@@ -415,10 +415,11 @@ class CatalogGraph {
      * contains a and b, return the augmented record that contains the value σ(a_rec.key,b_record) or a nullptr
      * if there is no bridge record that connects them
      */
-    AugmentedRecord* findAugRecord(AugmentedRecord* a_record, Edge<T> conn_edge) {
+    AugmentedRecord* findAugRecord(AugmentedRecord* a_record, T edge_label) {
+        Edge<T> edge = edges_[edge_label];
         float x = a_record->getKey();
-        T v_label = conn_edge.endpoints.first;
-        T w_label = conn_edge.endpoints.second;
+        T v_label = edge.endpoints.first;
+        T w_label = edge.endpoints.second;
 
         AugmentedRecord* r = a_record;
         //Finding the bridge from a to b
