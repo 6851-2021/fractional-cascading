@@ -344,7 +344,7 @@ class CatalogGraph {
             list<Edge<T> > path_edges;
             //Creating Edges from list of node
             for(T label: path_edge_labels) {
-                path_edges.push_back(&edges_[label]);
+                path_edges.push_back(*edges_[label]);
             }
             Edge<T> first_edge = path_edges[0];
             Node<T> f = first_edge.endpoints.first;
