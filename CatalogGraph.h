@@ -30,18 +30,18 @@ class CatalogGraph {
         map<T, map <T, BridgeRecord<T>* > > D_uv_bottom;
         map<T, map <T, BridgeRecord<T>* > > D_uv_top;
     public:
-        CatalogGraph(map<T, list<int> > nodes, map<int,pair<T,T> >edges, map<int,pair<int,int> > edge_ranges, int d) {
+        CatalogGraph(map<T, list<float> > nodes, map<int,pair<T,T> >edges, map<int,pair<float,float> > edge_ranges, int d) {
             //Step 1: Set d field
             this-> d = d;
             
             //Step 2: Process all edges for fields
-            map<T, set<int> > ranges;
-            map<T, map<int,pair<int,int> > > edges_of_interest;
+            map<T, set<float> > ranges;
+            map<T, map<int,pair<float,float> > > edges_of_interest;
             //Process edges
             for (auto const& edge_and_endpoints : edges) {
                 int edge_label = edge_and_endpoints.first;
                 pair<T,T> endpoints = edge_and_endpoints.second;
-                pair<int,int> edge_range = edge_ranges[edge_label];
+                pair<float,float> edge_range = edge_ranges[edge_label];
 
                 //extract the endpoints for ranges  dictionary
                 T endpoint1 = endpoints.first;
@@ -68,7 +68,7 @@ class CatalogGraph {
             for (auto const& key_and_value: nodes){
                 //Get label and list of values
                 T  label = key_and_value.first;
-                list<int> values = key_and_value.second;
+                list<float> values = key_and_value.second;
 
                 //Create nodes and place in appropriate fields
                 Node<T>* nodeObject = new Node<T>(label);
@@ -77,23 +77,23 @@ class CatalogGraph {
                 
                 //Fill up node's catalog
                 Catalog* nodeCat = nodeObject->getCatalog();
-                set<int> rangeEnds = ranges[label];
+                set<float> rangeEnds = ranges[label];
                 values.sort();
                 values.push_back(inf);
                 values.push_front(neg_inf);
                 Record* prevRecord =  NULL;
-                list<int>::iterator it = values.begin();
+                list<float>::iterator it = values.begin();
                 while (it != values.end()){
-                    int value = *it;
+                    float value = *it;
                     Record* record_to_insert;
                     if (rangeEnds.find(value) != rangeEnds.end()) {
                         //Figure out the edge whose endpoint contains `value`
                         for (auto const& edge_and_endpoints : edges_of_interest[label]) {
                                 int edge_key =  edge_and_endpoints.first;
-                                pair<int,int> rangepoints = edge_and_endpoints.second;
+                                pair<float,float> rangepoints = edge_and_endpoints.second;
 
-                                int  endpoint1 = rangepoints.first;
-                                int  endpoint2 = rangepoints.second;
+                                float  endpoint1 = rangepoints.first;
+                                float  endpoint2 = rangepoints.second;
 
                                 //We reach this case once and after that, never again for any particular node
                                 if  (endpoint1 == value && endpoint1 != endpoint2) {
@@ -335,10 +335,17 @@ class CatalogGraph {
         /**
          * Given x, a key value, and a generalized path of the graph G, in which every edge contains x
          * the query looks up x succesively in the catalogs of each vertex in this path, and reports 
-         * the first value greater than or equal to x
+         * the first value greater than or equal to x  
          */
-        list<int> multipleLookUpQuery(int x, list<Edge<T> > path_edges) {
-            list<int> sigma_x;
+        //To do: change input to list of edge labels, then make edges from that
+        // Write a helper method, given augmented record and edge, return augmented record for b
+        list<float> multipleLookUpQuery(float x, list<T> path_edge_labels) {
+            list<float> sigma_x;
+            list<Edge<T> > path_edges;
+            //Creating Edges from list of node
+            for(T label: path_edge_labels) {
+                path_edges.push_back(*edges_[label]);
+            }
             Edge<T> first_edge = path_edges[0];
             Node<T> f = first_edge.endpoints.first;
             AugmentedRecord* r = f.search(x); //Get Augmented Record thru Lookup
@@ -403,4 +410,62 @@ class CatalogGraph {
             }
             return sigma_x;
         }
+    /**
+     * Given a_record, an augmented record for the node a in a graph, along with conn_edge, an edge that
+     * contains a and b, return the augmented record that contains the value σ(a_rec.key,b_record)
+     */
+    AugmentedRecord* findAugRecord(AugmentedRecord* a_record, Edge<T> conn_edge) {
+        float x = a_record->getKey();
+        T v_label = conn_edge.endpoints.first;
+        T w_label = conn_edge.endpoints.second;
+
+        AugmentedRecord* r = a_record;
+        //Finding the bridge from a to b
+        bool bridge_found = false;
+        while (bridge_found != true) {
+            //If this record is a bridge
+            if (r->getBridge() == true) {
+                BridgeRecord<T> bridge_r = r;
+                //Check the edge to see if it (a,b)
+                Edge<T> bridge_edge = bridge_r->getEdge();
+                T a_label = bridge_edge.endpoints.first;
+                T b_label = bridge_edge.endpoints.second;
+                if ( (v_label == a_label && w_label == b_label) || (v_label == b_label && w_label == a_label)) {
+                // If so, stop the loop and continue to bridge_found logic
+                bridge_found = true;
+                // Follow bridge pointer to A_w
+                BridgeRecord<T>* aw_pointer = bridge_r->getCompanionBridge();
+                r = aw_pointer;
+                // Follow down pointers until you find new r
+                bool succesor_found = false;
+                while (succesor_found == false) {
+                    if (r->getKey() == x) {
+                        //stop here
+                        succesor_found = true;
+                        return r;
+                    }
+                    else if (r->getKey() < x) {
+                        //Go up one pointer
+                        succesor_found = true;
+                        auto up_pointer = r->getUpPointer(); //go up 1
+                        r = up_pointer;
+                        return r;
+                    }
+                    else{
+                        //keep going
+                        auto down_pointer = r->getDownPointer();
+                        r = down_pointer;
+                    }
+                }
+                }
+            }
+            //If this record is not a bridge
+            else {
+            auto up_pointer = r->getUpPointer();
+            r = up_pointer;  
+            }          
+        }
+
+        return a_record;
+    }
 };

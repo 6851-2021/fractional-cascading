@@ -15,17 +15,17 @@ class Record {
      * 
      */
     private:
-        int key;
+        float key;
         Record* up_pointer = NULL;
         bool endOfRange;
         int edge = -1;
     public:
-        Record(int key, bool endOfRange) {
+        Record(float key, bool endOfRange) {
             this->key = key;
             this->endOfRange = endOfRange;
         }
 
-        Record(int key, bool endOfRange,int edge_label) {
+        Record(float key, bool endOfRange,float edge_label) {
             this->key = key;
             this->endOfRange = endOfRange;
             this->edge = edge_label;
@@ -34,10 +34,10 @@ class Record {
 
         /**
          * @brief Get the Key object
-         * @return int the key (if the key is infinity, it is the last record
+         * @return float the key (if the key is infinity, it is the last record
          *          of its catalog)
          */
-        int getKey() {
+        float getKey() {
             return this->key;
         }
 

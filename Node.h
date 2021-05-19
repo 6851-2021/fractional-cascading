@@ -15,7 +15,7 @@ class Node {
         Catalog catalog = Catalog();
         T label;
         AugmentedCatalog<T> acatalog = AugmentedCatalog<T>();;
-        map<int, pair<int,AugmentedRecord*> > acatlogLookupTable;
+        map<int, pair<float,AugmentedRecord*> > acatlogLookupTable;
     public:
         Node(T label) {
             this->label = label;
@@ -44,10 +44,10 @@ class Node {
             }
         }
 
-        AugmentedRecord* search(int value, int start, int end) {
+        AugmentedRecord* search(float value, int start, int end) {
             if (start-end == 1) {
-                int valueAtStart = acatlogLookupTable[start].first;
-                int valueAtEnd = acatlogLookupTable[end].first;
+                float valueAtStart = acatlogLookupTable[start].first;
+                float valueAtEnd = acatlogLookupTable[end].first;
                 if (value==valueAtStart) {
                     return acatlogLookupTable[start].second;
                 } else if (value == valueAtEnd) {
@@ -56,8 +56,8 @@ class Node {
                     return nullptr;
                 }
             }
-            int mid = start+end/2;
-            int valueAtMid = acatlogLookupTable[mid].first;
+            float mid = start+end/2;
+            float valueAtMid = acatlogLookupTable[mid].first;
             if (valueAtMid == value) {
                 return acatlogLookupTable[mid].second;
             } else if (valueAtMid < value) {

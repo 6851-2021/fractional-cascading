@@ -21,7 +21,7 @@ class BridgeRecord : public AugmentedRecord {
         int count = 0;
         int rank = 0;
     public:
-        BridgeRecord(int key, Record* c_successor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag,
+        BridgeRecord(float key, Record* c_successor, AugmentedRecord* a_successor, AugmentedRecord* a_predecessor, bool flag,
             BridgeRecord* prev_bridge, BridgeRecord* companion_bridge, Edge<T>* edge, int count, int rank) :
                 AugmentedRecord(key, c_successor, a_successor, a_predecessor, flag) {
                     this->prev_bridge = prev_bridge;
@@ -32,7 +32,7 @@ class BridgeRecord : public AugmentedRecord {
                     this->isBridge = true;
                 }
 
-        BridgeRecord(int key, Record* c_successor, bool flag, Edge<T>* edge) :
+        BridgeRecord(float key, Record* c_successor, bool flag, Edge<T>* edge) :
                 AugmentedRecord(key, c_successor, flag, true) {
                     this->edge = edge;
                 }
