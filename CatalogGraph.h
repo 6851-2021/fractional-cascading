@@ -427,7 +427,7 @@ class CatalogGraph {
         while (bridge_found != true) {
             //If this record is a bridge
             if (r->getBridge() == true) {
-                BridgeRecord<T> bridge_r = r;
+                BridgeRecord<T> bridge_r = dynamic_cast <BridgeRecord<T>*> (r);
                 //Check the edge to see if it (a,b)
                 Edge<T> bridge_edge = bridge_r->getEdge();
                 T a_label = bridge_edge.endpoints.first;
@@ -476,4 +476,5 @@ class CatalogGraph {
 
         return nullptr;
     }
+    
 };

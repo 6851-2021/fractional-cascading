@@ -44,6 +44,7 @@ int main () {
     int d = 2;
     CatalogGraph<int> catGraph(nodes, edges, edge_ranges, d);
     catGraph.constructAugmentedCatalogs();
+    /*
     for(Node<int>* n: catGraph.getNodes()){
         cout << n->getLabel() << endl;
         AugmentedRecord* a = n->getAugCatalog()->getBottomRecord();
@@ -55,5 +56,6 @@ int main () {
         }
         cout << endl;
     }
+    */
     
 }
