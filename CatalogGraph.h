@@ -493,20 +493,22 @@ public:
                 path_edges.push_back(*edges_[label]);
             }
             Edge<T> first_edge = path_edges.front();
-            Node<T> f = first_edge.getEndpoints().first;
+            T f_label = first_edge.getEndpoints().first;
+            Node<T> f = *nodes_[f_label];
             AugmentedRecord* r = f.search(x,0,path_edges.size()).first; //Get Augmented Record thru Lookup
             auto ac_pointer = r->getCPointer();
             sigma_x.push_back(ac_pointer->getKey()); //Carryover lookup into the catalog
-
             for (Edge<T> edge: path_edges) {
                 //Find bridge for first node in edge to second node 
                 T v_label = edge.getEndpoints().first;
                 T w_label = edge.getEndpoints().second;
                 bool bridge_found = false;
-                while (bridge_found != true) {
+                while (bridge_found != true && r) {
                     //If this record is a bridge
                     if (r->getBridge() == true) {
                         //Look at where to use bridge_r vs r, how do i determine when to switch, can i declare r as AugRec if it is a BridgeRec?
+                        cout << "even gets here" << endl;
+
                         BridgeRecord<T>* bridge_r = dynamic_cast<BridgeRecord<T> *>(r);
                         //Check the edge to see if it (v,w)
                         Edge<T>* bridge_edge = bridge_r->getEdge();
@@ -516,34 +518,46 @@ public:
                         // If so, stop the loop and continue to bridge_found logic
                         bridge_found = true;
                         // Follow bridge pointer to A_w
+                        cout << "even gets here" << endl;
+
                         BridgeRecord<T>* aw_pointer = bridge_r->getCompanionBridge();
-                        AugmentedRecord *k = aw_pointer;
+                        r = aw_pointer;
                         // Follow down pointers until you find new r
                         bool succesor_found = false;
                         while (succesor_found == false) {
-                            if (k->getKey() == x) {
+                            cout << r->getKey() << endl;
+                            if (r->getKey() == x) {
                                 //stop here
+                                cout << "found succesor for one of them" << endl;
                                 succesor_found = true;
-                                auto c_pointer = k->getCPointer();
+                                auto c_pointer = r->getCPointer();
                                 sigma_x.push_back(c_pointer->getKey());//Pushback value of r in c_w catalog
-                                r = k;
+                                // r = k;
                             }
-                            else if (k->getKey() < x) {
+                            else if (r->getKey() < x) {
                                 //Go up one pointer
+                                cout << "found succesor for one of them II" << endl;
+
                                 succesor_found = true;
-                                auto up_pointer = k->getUpPointer(); //go up 1
+                                auto up_pointer = r->getUpPointer(); //go up 1
                                 sigma_x.push_back(up_pointer->getCPointer()->getKey()); //Pushback value of r in c_w catalog
-                                r = k;
+                                // r = k;
                             }
                             else{
+                                cout << "keep going" << endl;
+
                                 //keep going
                                 auto down_pointer = r->getDownPointer();
+                                if (!r->getDownPointer()) {
+                                    sigma_x.push_back(-1);
+                                }
                                 r = down_pointer;
                             }
                         }
                         }
                         //If the bridge does not contain the appropriate edge
                         else {
+                            cout << "wrong edge" << endl;
                             r = r->getUpPointer();
                         }
                     }
