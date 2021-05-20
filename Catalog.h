@@ -22,9 +22,6 @@ class Catalog {
     private:
         Record* bottomRecord = NULL;
     public:
-
-        /** Initializes an "empty" catalog with the default records of negative infinity and infinity.
-         */
         Catalog() {
 
         }
@@ -36,18 +33,5 @@ class Catalog {
         void setBottomRecord(Record* bottomRecord) {
             this->bottomRecord = bottomRecord;
         }
-        // /**
-        //  * @brief Searches for a record in the catalog by key
-        //  * @param key 
-        //  * @return Record<T> the record if found, and nullptr if not
-        //  */
-        // Record* search(int key) {
-        //     for (Record record : this->listOfRecords) {
-        //         // CHANGE THIS TO SETOFRECORDS IF WE USE THAT REP
-        //         if (record.getKey() == key) {
-        //             return &record;
-        //         }
-        //     }
-        //     return nullptr;
-        // };
+
 };

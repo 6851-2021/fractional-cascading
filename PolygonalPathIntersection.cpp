@@ -17,17 +17,16 @@
 
 using namespace std;
 
-//Like memo from DP
-//This also stores the convex hull in reverse order since the points are sorted  x
+
 map<int,pair<Line*,int> > nodeDictionary; //stores node label and the lines/edges of the chain associated with it
 map<int,list<int> >  nodesToIncidentEdges;
 map<int,pair<int,int> > edgeDictionary; //stores the edge label and the pair of node labels associated with the edge
 map<int,pair<vector<Line>, int> > convexHulls; //stores node label to the convex hull of the sub-chain it represents
+
 //Eventually be fed into the Catalog Graph
 map<int,list<float> > slopeSequence;
 map<int,pair<float,float> > edgeRanges;
 
-//use arrays instead of pointers!!!
 void getNodesAndEdges(Line* polygonPath, int sizeOfArray){
     //Initialise  queue for constructing nodes
     deque< pair <pair<Line*,int>,int> > buildQueue; //holds pairs of nodes(as described by start of array and size) and their integer labels
@@ -219,7 +218,7 @@ bool checkIntersect(Line line1, Line line2) {
 }
 
 int  main() {
-    //Initialise poligonal chain and query line
+    //Initialise polygonal chain and query line
     int POLYGON_PATH_NUMBER_OF_LINES=  5;
     Line polygonPath[POLYGON_PATH_NUMBER_OF_LINES]; 
     polygonPath[0] = make_pair(make_pair(1,1),make_pair(2,3));
@@ -287,7 +286,6 @@ int  main() {
                     int index1 = k%j;
                     int index2 = (k+1)%j;
                     finalResult[k] = make_pair(reordered[index1],reordered[index2]);
-                    //cout <<  "(" << finalResult[k].first.first << ","  << finalResult[k].first.second << ")"<<  "& (" << finalResult[k].second.first << ","  << finalResult[k].second.second << ")"<< "\n";
                 }
                 convexHulls[nodeKey] = make_pair(finalResult,j);
                 }
@@ -345,6 +343,7 @@ int  main() {
             if (nodeDictionary[left_child].second == 1){
                 if (checkIntersect(l,*nodeDictionary[left_child].first)){
                     res+=1;
+                    edgesIntersected.push_back(*nodeDictionary[left_child].first);
                 }
             } 
             else  {
@@ -363,6 +362,7 @@ int  main() {
             if (nodeDictionary[right_child].second==1){
                 if (checkIntersect(l,*nodeDictionary[right_child].first)){
                     res+=1;
+                    edgesIntersected.push_back(*nodeDictionary[right_child].first);
                 }
             }
             else {
@@ -375,9 +375,16 @@ int  main() {
             }
         }
     }
-    resultsFile.close();
     cout << "Number of Intersections:";
     cout  << res;
+    for (int i=0; i<res; i++){
+        Line line = edgesIntersected.front();
+        edgesIntersected.pop_front();
+        resultsFile << "(" << line.first.first << "," << line.first.second << "," << line.second.first << "," << line.second.second << ")" << " ";
+    }
+    resultsFile  << "\n";
+    resultsFile.close();
+
 }
 
     
