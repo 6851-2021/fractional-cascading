@@ -1,8 +1,6 @@
 #pragma once
-
 #include "Catalog.h"
 #include "AugmentedCatalog.h"
-
 #include <map>
 #include <utility>
 
@@ -14,8 +12,8 @@ class Node {
     private:
         Catalog catalog = Catalog();
         T label;
-        AugmentedCatalog<T> acatalog = AugmentedCatalog<T>();;
-        map<int, pair<int,AugmentedRecord*> > acatlogLookupTable;
+        AugmentedCatalog<T> acatalog = AugmentedCatalog<T>();
+        map<int, pair<float,AugmentedRecord*> > acatlogLookupTable;
     public:
         Node(T label) {
             this->label = label;
@@ -37,29 +35,31 @@ class Node {
         void createLookupTable() {
             int count = 0;
             AugmentedRecord* record = acatalog.getBottomRecord();
-            while(record) {
+            while(record != nullptr) {
                 acatlogLookupTable[count]  = make_pair(record->getKey(),record);
                 record = record->getUpPointer();
                 count++;
             }
         }
 
-        AugmentedRecord* search(int value, int start, int end) {
-            if (start-end == 1) {
-                int valueAtStart = acatlogLookupTable[start].first;
-                int valueAtEnd = acatlogLookupTable[end].first;
+        //Returns AugmentedRecord mapping to value if found, otherwise, returns successor
+        pair<AugmentedRecord*,int> search(float value, int start, int end) {
+            if (end-start == 1) {
+                float valueAtStart = acatlogLookupTable[start].first;
+                float valueAtEnd = acatlogLookupTable[end].first;
                 if (value==valueAtStart) {
-                    return acatlogLookupTable[start].second;
-                } else if (value == valueAtEnd) {
-                    return acatlogLookupTable[end].second;
-                } else {
-                    return nullptr;
+                    return make_pair(acatlogLookupTable[start].second,start);
+                } else if (value <= valueAtEnd){
+                    return make_pair(acatlogLookupTable[end].second,end);
                 }
+                 else {
+                     return make_pair(nullptr,-1); 
+                } 
             }
             int mid = start+end/2;
-            int valueAtMid = acatlogLookupTable[mid].first;
+            float valueAtMid = acatlogLookupTable[mid].first;
             if (valueAtMid == value) {
-                return acatlogLookupTable[mid].second;
+                return make_pair(acatlogLookupTable[mid].second,mid);
             } else if (valueAtMid < value) {
                 return search(value,mid,end);
             } else {

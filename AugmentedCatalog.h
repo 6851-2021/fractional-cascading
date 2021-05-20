@@ -18,6 +18,7 @@ class AugmentedCatalog {
      */
     private:
         AugmentedRecord* bottom_record = NULL;
+        int size = 0;
     public:
     //     //TODO: Change this to an optional object
     //     /**
@@ -37,10 +38,14 @@ class AugmentedCatalog {
 
         void setBottomRecord(AugmentedRecord* bottomRecord) {
             this->bottom_record = bottomRecord;
+            size++;
         }
         
         AugmentedRecord* getBottomRecord() {
             return this->bottom_record;
+        }
+        int getSize() {
+            return size;
         }
 
         // AugmentedCatalog(list<AugmentedRecord> records) {

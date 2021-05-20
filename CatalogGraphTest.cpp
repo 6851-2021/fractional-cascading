@@ -2,8 +2,8 @@
 #include "CatalogGraph.h"
 
 int main () {
-    map<int, list<int> > nodes;
-    list<int> node0;
+    map<int, list<float> > nodes;
+    list<float> node0;
     node0.push_back(1);
     node0.push_back(3);
     node0.push_back(4);
@@ -14,7 +14,7 @@ int main () {
     node0.push_back(9);
     node0.push_back(10);
     nodes[0] = node0;
-    list<int> node1;
+    list<float> node1;
     node1.push_back(1);
     node1.push_back(2);
     node1.push_back(3);
@@ -26,7 +26,7 @@ int main () {
     node1.push_back(9);
     node1.push_back(10);
     nodes[1] = node1;
-    list<int> node2;
+    list<float> node2;
     node2.push_back(2);
     node2.push_back(3);
     node2.push_back(4);
@@ -36,7 +36,7 @@ int main () {
     edges[0] = make_pair(0, 1);
     edges[1] = make_pair(1, 2);
     edges[2] = make_pair(2, 0);
-    map<int,pair<int,int> > edge_ranges;
+    map<int,pair<float,float> > edge_ranges;
     edge_ranges[0] = make_pair(1, 10);
     edge_ranges[1] = make_pair(2, 4);
     edge_ranges[2] = make_pair(3, 5);

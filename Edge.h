@@ -12,9 +12,9 @@ template <typename T>
 class Edge {
     private:
         pair<T,T> endpoints;
-        pair<int,int> range;
+        pair<float,float> range;
     public:
-        Edge(pair<T,T> ends, pair<int,int> range) {
+        Edge(pair<T,T> ends, pair<float,float> range) {
             this->endpoints = ends;
             this->range = range;
         }
@@ -23,7 +23,7 @@ class Edge {
             return this->endpoints;
         }
 
-        pair<int, int> getRange() {
+        pair<float, float> getRange() {
             return this->range;
         }
 

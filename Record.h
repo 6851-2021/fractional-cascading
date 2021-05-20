@@ -15,12 +15,12 @@ class Record {
      * 
      */
     private:
-        int key;
+        float key;
         Record* up_pointer = NULL;
         bool endOfRange;
         int edge = -1;
     public:
-        Record(int key, bool endOfRange) {
+        Record(float key, bool endOfRange) {
             this->key = key;
             this->endOfRange = endOfRange;
         }
@@ -37,7 +37,7 @@ class Record {
          * @return int the key (if the key is infinity, it is the last record
          *          of its catalog)
          */
-        int getKey() {
+        float getKey() {
             return this->key;
         }
 
