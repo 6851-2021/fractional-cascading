@@ -520,7 +520,6 @@ public:
                         // Follow down pointers until you find new r
                         bool succesor_found = false;
                         while (succesor_found == false) {
-                            cout << r->getKey() << endl;
                             if (r->getKey() == x) {
                                 //stop here
                                 succesor_found = true;
