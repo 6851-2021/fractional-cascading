@@ -9,6 +9,8 @@ class PolygonVisualization:
         self.FIG, self.AX = pl.subplots()
         self.AX.set_xlim([xmin-2, xmax+2])
         self.AX.set_ylim([ymin-2, ymax+2])
+        self.last_line = 0
+        self.index = 0
 
     def plot_lines(self, lines):
         lc = mc.LineCollection(lines, colors= self.COLORS[0], linewidths=2)
@@ -20,14 +22,19 @@ class PolygonVisualization:
 
     def update_graph(self, new_set):        
         for i, new_line in enumerate(new_set):
-            color = self.COLORS[i%2]
+            if(self.index == self.last_line):
+                color = np.array([0, 1, 0, 1])
+            else:
+                color = self.COLORS[i%2]
             for line in new_line:
                 x1, y1 = line[0]
                 x2, y2 = line[1]
                 pl.plot((x1, x2), (y1, y2), color = color)
+        self.index += 1
 
 
     def make_graphs(self, lines, new_lines):
+        self.last_line = len(new_lines)
         graph = self.plot_lines(lines)
         ani = animation.FuncAnimation(self.FIG, self.update_graph, new_lines, interval=1000, blit=False, repeat= False)
         pl.show()
