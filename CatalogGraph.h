@@ -506,9 +506,6 @@ public:
                 while (bridge_found != true && r) {
                     //If this record is a bridge
                     if (r->getBridge() == true) {
-                        //Look at where to use bridge_r vs r, how do i determine when to switch, can i declare r as AugRec if it is a BridgeRec?
-                        cout << "even gets here" << endl;
-
                         BridgeRecord<T>* bridge_r = dynamic_cast<BridgeRecord<T> *>(r);
                         //Check the edge to see if it (v,w)
                         Edge<T>* bridge_edge = bridge_r->getEdge();
@@ -518,8 +515,6 @@ public:
                         // If so, stop the loop and continue to bridge_found logic
                         bridge_found = true;
                         // Follow bridge pointer to A_w
-                        cout << "even gets here" << endl;
-
                         BridgeRecord<T>* aw_pointer = bridge_r->getCompanionBridge();
                         r = aw_pointer;
                         // Follow down pointers until you find new r
@@ -528,7 +523,6 @@ public:
                             cout << r->getKey() << endl;
                             if (r->getKey() == x) {
                                 //stop here
-                                cout << "found succesor for one of them" << endl;
                                 succesor_found = true;
                                 auto c_pointer = r->getCPointer();
                                 sigma_x.push_back(c_pointer->getKey());//Pushback value of r in c_w catalog
@@ -536,18 +530,15 @@ public:
                             }
                             else if (r->getKey() < x) {
                                 //Go up one pointer
-                                cout << "found succesor for one of them II" << endl;
-
                                 succesor_found = true;
                                 auto up_pointer = r->getUpPointer(); //go up 1
                                 sigma_x.push_back(up_pointer->getCPointer()->getKey()); //Pushback value of r in c_w catalog
                                 // r = k;
                             }
                             else{
-                                cout << "keep going" << endl;
-
                                 //keep going
                                 auto down_pointer = r->getDownPointer();
+                                //This shouldn't be the case otherwise the path doesn't connect and precondition is violated
                                 if (!r->getDownPointer()) {
                                     sigma_x.push_back(-1);
                                 }
@@ -557,7 +548,6 @@ public:
                         }
                         //If the bridge does not contain the appropriate edge
                         else {
-                            cout << "wrong edge" << endl;
                             r = r->getUpPointer();
                         }
                     }
