@@ -6,8 +6,8 @@
 
 using namespace std;
 
-int inf = numeric_limits<int>::max();
-int neg_inf = -1*inf;
+float inf = numeric_limits<int>::max();
+float neg_inf = -1*inf;
 
 
 /**

@@ -29,6 +29,7 @@ int main () {
     list<float> node2;
     node2.push_back(2);
     node2.push_back(3);
+    node2.push_back(3);
     node2.push_back(4);
     node2.push_back(5);
     nodes[2] = node2;
@@ -37,8 +38,8 @@ int main () {
     edges[1] = make_pair(1, 2);
     edges[2] = make_pair(2, 0);
     map<int,pair<float,float> > edge_ranges;
-    edge_ranges[0] = make_pair(1, 10);
-    edge_ranges[1] = make_pair(2, 4);
+    edge_ranges[0] = make_pair(neg_inf, 10);
+    edge_ranges[1] = make_pair(3, 4);
     edge_ranges[2] = make_pair(3, 5);
     int d = 2;
     CatalogGraph<int> catGraph(nodes, edges, edge_ranges, d);
@@ -54,4 +55,5 @@ int main () {
         }
         cout << endl;
     }
+    
 }
