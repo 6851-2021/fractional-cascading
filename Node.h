@@ -43,7 +43,7 @@ class Node {
         }
 
         //Returns AugmentedRecord mapping to value if found, otherwise, returns successor
-        pair<AugmentedRecord*,int> search(float value, int start, int end) {
+        pair<AugmentedRecord*,int> search(float value, int start, int end) {\
             if (end-start == 1) {
                 float valueAtStart = acatlogLookupTable[start].first;
                 float valueAtEnd = acatlogLookupTable[end].first;

@@ -44,6 +44,7 @@ int main () {
     int d = 2;
     CatalogGraph<int> catGraph(nodes, edges, edge_ranges, d);
     catGraph.constructAugmentedCatalogs();
+
     /*
     for(Node<int>* n: catGraph.getNodes()){
         cout << n->getLabel() << endl;
@@ -57,5 +58,19 @@ int main () {
         cout << endl;
     }
     */
+
+   //Testing multiple lookup query
+
+//    cout << "Query testing" << endl;
+   list<int> path_edges;
+   path_edges.push_back(0);
+   path_edges.push_back(1);
+   path_edges.push_back(2);
+   list<float> ans;
+   ans = catGraph.multipleLookUpQuery(3.0,path_edges);
+//    cout << "gets here at least" << endl;
+//    for (float n: ans) {
+//        cout << n << endl;
+//    }
     
 };

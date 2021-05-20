@@ -217,6 +217,10 @@ bool checkIntersect(Line line1, Line line2) {
         return signsecond != signfirst;
 }
 
+void visualizeSearch() {
+    system("python3 PolygonVisualization.py");
+}
+
 int  main() {
     //Initialise polygonal chain and query line
     int POLYGON_PATH_NUMBER_OF_LINES=  5;
@@ -385,6 +389,7 @@ int  main() {
     resultsFile  << "\n";
     resultsFile.close();
 
+    visualizeSearch();
 }
 
     
