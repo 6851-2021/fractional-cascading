@@ -218,6 +218,10 @@ bool checkIntersect(Line line1, Line line2) {
         return signsecond != signfirst;
 }
 
+void visualizeSearch() {
+    system("python3 PolygonVisualization.py");
+}
+
 int  main() {
     //Initialise poligonal chain and query line
     int POLYGON_PATH_NUMBER_OF_LINES=  5;
@@ -375,6 +379,7 @@ int  main() {
     resultsFile.close();
     cout << "Number of Intersections:";
     cout  << res;
+    visualizeSearch();
 }
 
     
