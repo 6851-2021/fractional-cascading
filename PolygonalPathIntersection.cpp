@@ -323,13 +323,13 @@ int  main() {
     }
     //If in range, search tree
     else {
-        queue< pair<int,AugmentedRecord*> > searchQueue; //queue containing node with augmentedRecordPointer and its key
-        pair<int,AugmentedRecord*> first_entry = make_pair(0,res1.first); // include both s and s' in search
+        queue< pair<int,pair<AugmentedRecord*,AugmentedRecord*> > > searchQueue; //queue containing node with augmentedRecordPointer and its key
+        pair<int,pair<AugmentedRecord*,AugmentedRecord*> > first_entry = make_pair(0,make_pair(res1.first,res2.first)); // include both s and s' in search
         searchQueue.push(first_entry);
         int count  = 0;
         while (!searchQueue.empty()){
             //Step 1: Pop an element from the queue
-            pair<int,AugmentedRecord*> currNode = searchQueue.front();
+            pair<int,pair<AugmentedRecord*,AugmentedRecord*> > currNode = searchQueue.front();
             searchQueue.pop();
 
             //Step 2: Extract relevant info
@@ -337,7 +337,8 @@ int  main() {
             list<int> incidentEdges = nodesToIncidentEdges[nodeKey];
             int left_edge = incidentEdges.front();
             int right_edge = incidentEdges.back();
-            AugmentedRecord* searchResult = currNode.second;
+            AugmentedRecord* searchResult_s = currNode.second.first;
+            AugmentedRecord* searchResult_sprime = currNode.second.second;
             int left_child = 2*nodeKey+1;
             int right_child = 2*nodeKey+2;
             Line* p = nodeDictionary[left_child].first;
@@ -351,9 +352,10 @@ int  main() {
                 }
             } 
             else  {
-                AugmentedRecord* left_searchResult = CGraph->findAugRecord(searchResult,left_edge);
-                pair<int,AugmentedRecord*> left_entry = make_pair(left_child,left_searchResult);
-                if (left_searchResult){
+                AugmentedRecord* left_searchResult_s = CGraph->findAugRecord(searchResult_s,left_edge);
+                AugmentedRecord* left_searchResult_sprime = CGraph->findAugRecord(searchResult_sprime,left_edge);
+                if (left_searchResult_s && left_searchResult_s){
+                    pair<int,pair<AugmentedRecord*,AugmentedRecord*> > left_entry = make_pair(left_child,make_pair(left_searchResult_s,left_searchResult_sprime));
                     searchQueue.push(left_entry);
                 }
             }
@@ -368,9 +370,10 @@ int  main() {
                 }
             }
             else {
-                AugmentedRecord* right_searchResult = CGraph->findAugRecord(searchResult,right_edge);
-                pair<int,AugmentedRecord*> right_entry = make_pair(right_child,right_searchResult);
-                if (right_searchResult){
+                AugmentedRecord* right_searchResult_s = CGraph->findAugRecord(searchResult_s,right_edge);
+                AugmentedRecord* right_searchResult_sprime = CGraph->findAugRecord(searchResult_sprime,right_edge);
+                if (right_searchResult_s && right_searchResult_sprime){
+                    pair<int,pair<AugmentedRecord*, AugmentedRecord*> > right_entry = make_pair(right_child,make_pair(right_searchResult_s,right_searchResult_sprime));
                     searchQueue.push(right_entry);
                 }
             }
