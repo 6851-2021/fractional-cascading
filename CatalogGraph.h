@@ -494,7 +494,7 @@ public:
             }
             Edge<T> first_edge = path_edges.front();
             Node<T> f = first_edge.getEndpoints().first;
-            AugmentedRecord* r = f.search(x,0,path_edges.size()); //Get Augmented Record thru Lookup
+            AugmentedRecord* r = f.search(x,0,path_edges.size()).first; //Get Augmented Record thru Lookup
             auto ac_pointer = r->getCPointer();
             sigma_x.push_back(ac_pointer->getKey()); //Carryover lookup into the catalog
 
