@@ -1,22 +1,21 @@
 #include <iostream>
+#include <fstream>
 #include <utility>
 #include <list>
 #include <deque>
-#include <math.h>
+#include <cmath>
 #include <map>
-#include "ConvexHull.h"
-#include <vector>
-#include "CatalogGraph.h"
 #include <queue>
+#include <vector>
+#include "ConvexHull.h"
 #include "AugmentedRecord.h"
-#include <fstream>
-
-
-using namespace std;
+#include "CatalogGraph.h"
  
 #define PI 3.14159265
 #define Point pair<float,float>
 #define Line pair<Point,Point>
+
+using namespace std;
 
 //Like memo from DP
 //This also stores the convex hull in reverse order since the points are sorted  x
@@ -185,7 +184,7 @@ void computeSlopeSequences(){
     }
 }
 
-void getEdgeRanges(){
+void getSlopeEdgeRanges(){
     for (auto const& edge_and_endpoints: edgeDictionary){
         int edgeKey = edge_and_endpoints.first;
         pair<int,int> endPoints = edge_and_endpoints.second;
@@ -247,9 +246,9 @@ int  main() {
     //Open file for writing results to be used for visualization
     ofstream resultsFile;
     resultsFile.open("visual.txt");
-    resultsFile << "{(" << l.first.first << "," << l.first.second << ")" << "(" << l.second.first << "," << l.second.second << ")}" << "\n";
+    resultsFile << "(" << l.first.first << "," << l.first.second << "," << l.second.first << "," << l.second.second << ")" << "\n";
     for (int i=0; i< POLYGON_PATH_NUMBER_OF_LINES;i++){
-        resultsFile << "{(" << polygonPath[i].first.first << "," << polygonPath[i].first.second << ")" << "(" << polygonPath[i].second.first << "," << polygonPath[i].second.second << ")}" << " ";
+        resultsFile << "(" << polygonPath[i].first.first << "," << polygonPath[i].first.second << "," << polygonPath[i].second.first << "," << polygonPath[i].second.second << ")" << " ";
     }
     resultsFile << "\n";
     
@@ -295,7 +294,7 @@ int  main() {
     }
     //Compute relevant information
     computeSlopeSequences();
-    getEdgeRanges();
+    getSlopeEdgeRanges();
 
     //Construct Catalog graph and perform search
     CatalogGraph<int>* CGraph = new CatalogGraph<int>(slopeSequence,edgeDictionary,edgeRanges,2);
@@ -340,7 +339,7 @@ int  main() {
             int right_child = 2*nodeKey+2;
             Line* p = nodeDictionary[left_child].first;
             for (int i=0;i<nodeDictionary[left_child].second;i++) {
-                resultsFile << "{(" << (*(p+i)).first.first << "," << (*(p+i)).first.second << ")" << "(" << (*(p+i)).second.first << "," << (*(p+i)).second.second << ")}" << " ";
+                resultsFile << "(" << (*(p+i)).first.first << "," << (*(p+i)).first.second << "," << (*(p+i)).second.first << "," << (*(p+i)).second.second << ")" << " ";
             }
             resultsFile << "\n";
             if (nodeDictionary[left_child].second == 1){
@@ -358,7 +357,7 @@ int  main() {
             }
             Line* q = nodeDictionary[right_child].first;
             for (int i=0;i<nodeDictionary[right_child].second;i++) {
-                resultsFile << "{(" << (*(q+i)).first.first << "," << (*(q+i)).first.second << ")" << "(" << (*(q+i)).second.first << "," << (*(q+i)).second.second << ")}" << " ";
+                resultsFile << "(" << (*(q+i)).first.first << "," << (*(q+i)).first.second << "," << (*(q+i)).second.first << "," << (*(q+i)).second.second << ")" << " ";
             }
             resultsFile << "\n";
             if (nodeDictionary[right_child].second==1){
@@ -380,4 +379,5 @@ int  main() {
     cout << "Number of Intersections:";
     cout  << res;
 }
+
     
