@@ -4,11 +4,12 @@
 This project implements fractional cascading over graphs, as described in
 "[Fractional Cascading I. A Data Structuring Technique](https://www.cs.princeton.edu/courses/archive/spring12/cos423/bib/FractionalCascading1.pdf)"
 by Chazelle and Guibas (1986).
+
 We also implement two applications from
 "[Fractional Cascading II. Applications](https://www.cs.princeton.edu/courses/archive/spring12/cos423/bib/FractionalCascading2.pdf)":
 
-* Intersecting a polygonal path with a line (Section 3)
-* Orthogonal range search (Section 5)
+* Intersecting a Polygonal Path with a Line (Section 3)
+* Visualization of hive graph from Orthogonal Range Search (Section 5)
 
 ## Usage
 
