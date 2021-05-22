@@ -1,5 +1,6 @@
 #include "Record.h"
 
+#include <limits>
 #include <set>
 #include <list>
 #include <map>

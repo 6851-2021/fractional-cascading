@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <utility>
@@ -392,4 +393,3 @@ int  main() {
     visualizeSearch();
 }
 
-    

@@ -1,4 +1,5 @@
 //Algorithm from online package**
+#include <cmath>
 #include <set>
 #include <utility>
 #include <iostream>
