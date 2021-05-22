@@ -1,8 +1,11 @@
-//Algorithm from online package**
+// Most of this code is by Amritya Yagni, as posted at
+// https://www.geeksforgeeks.org/quickhull-algorithm-convex-hull/
+// This code just lacks the driver.
+
+#include <cmath>
 #include <set>
 #include <utility>
 #include <iostream>
-#include <math.h>
 using namespace std;
 #define iPair pair<float, float>
   
@@ -107,16 +110,4 @@ set<iPair> printHull(iPair a[], int n)
     }
     return res;
 }
-  
-// Driver code
-// int main()
-// {
-//     iPair a[] = {make_pair(1, 1), make_pair(2, 3), make_pair(3, 1), make_pair(4, 3),
-//                make_pair(5, 1)};
-//     int n = sizeof(a)/sizeof(a[0]);
-//     set<iPair> res = printHull(a, n);
-//     for (auto point:res){
-//         cout << point.first << "," << point.second << "\n";
-//     }
-//     return 0;
-// }
+
