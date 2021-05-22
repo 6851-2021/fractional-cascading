@@ -2,3 +2,6 @@ CatalogGraphTest
 ConvexHull
 HiveGraphTest
 PolygonalPathIntersection
+
+a.out*
+*.gch
